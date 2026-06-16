@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GD Quality List</title>
+    <title>GD Quality Level List</title>
     <style>
         :root {
             --bg-color: #11141a;
@@ -141,19 +141,11 @@
             display: block;
         }
 
-        .map-description {
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 0 0 15px 0;
-            color: var(--text-color);
-        }
-
+        /* 3열 데이터 격자 배치 */
         .info-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
         }
 
         .info-label {
@@ -166,14 +158,14 @@
         .info-value {
             font-size: 16px;
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>GD QUALITY LIST</h1>
+        <h1>GD QUALITY LEVEL LIST</h1>
         <div style="font-size: 14px; color: var(--text-muted);">TOP QUALITY MAPS</div>
     </header>
 
@@ -182,16 +174,17 @@
     </div>
 
     <script>
-        // 맵 데이터 목록 (objects 항목을 추가했습니다)
+        // 맵 데이터 목록 (description 대신 rating 항목을 추가했습니다)
         const mapData = [
             {
                 rank: 1,
                 name: "Acheron",
                 creator: "Riot & more",
-                objects: "142,352", // 난이도 대신 오브젝트 수 입력
+                objects: "142,352",
                 publisher: "Riot",
-                videoUrl: "https://www.youtube.com/watch?v=Sg3NfK1T7p4", 
-                description: "현재 비주얼과 게임플레이 퀄리티 밸런스가 가장 뛰어난 최상위 맵입니다."
+                rating: "Featured", // 레이팅 정보 (Featured, Epic, Legendary, Mythic, Unfeatured 등)
+                ratingColor: "#ffcc00", // 레이팅 강조용 색상 (Featured는 노란빛)
+                videoUrl: "https://www.youtube.com/watch?v=Sg3NfK1T7p4"
             },
             {
                 rank: 2,
@@ -199,8 +192,9 @@
                 creator: "IcedCave",
                 objects: "78,214",
                 publisher: "SpaceUK",
-                videoUrl: "https://www.youtube.com/watch?v=eXbN8Lp_R84",
-                description: "압도적인 분위기와 다크한 헬스타일 연출이 돋보이는 명작입니다."
+                rating: "Epic", 
+                ratingColor: "#ff3366", // Epic은 불타는 핑크/빨강 계열
+                videoUrl: "https://www.youtube.com/watch?v=eXbN8Lp_R84"
             },
             {
                 rank: 3,
@@ -208,8 +202,9 @@
                 creator: "MindCap & More",
                 objects: "324,511",
                 publisher: "MindCap",
-                videoUrl: "https://www.youtube.com/watch?v=fA8S_7vXg6M",
-                description: "기믹과 이펙트의 끝판왕. 지메 역사상 가장 창의적인 맵 중 하나입니다."
+                rating: "Mythic", 
+                ratingColor: "#00ffff", // Mythic 등급은 시안 블루 계열
+                videoUrl: "https://www.youtube.com/watch?v=fA8S_7vXg6M"
             }
         ];
 
@@ -241,7 +236,7 @@
                 
                 const thumbUrl = getYoutubeThumbnail(map.videoUrl);
 
-                // 하단 라벨 정보 구성을 OBJECTS와 PUBLISHER로 완벽 수정
+                // 설명창을 지우고 OBJECTS / PUBLISHER / RATING 3개 격자로 주입
                 item.innerHTML = `
                     <div class="item-main-row">
                         <div class="rank">#${map.rank}</div>
@@ -254,7 +249,6 @@
                         </div>
                     </div>
                     <div class="item-detail-box">
-                        <p class="map-description">${map.description}</p>
                         <div class="info-grid">
                             <div>
                                 <div class="info-label">OBJECTS</div>
@@ -263,6 +257,10 @@
                             <div>
                                 <div class="info-label">PUBLISHER</div>
                                 <div class="info-value">${map.publisher}</div>
+                            </div>
+                            <div>
+                                <div class="info-label">RATING</div>
+                                <div class="info-value" style="color: ${map.ratingColor || '#fff'};">${map.rating}</div>
                             </div>
                         </div>
                     </div>
