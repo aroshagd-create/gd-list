@@ -39,34 +39,35 @@
         }
 
         .container {
-            display: flex;
-            max-width: 1400px;
+            max-width: 1000px; /* 오른쪽 창이 없으므로 보기 편하게 가로폭을 최적화 */
             margin: 30px auto;
             padding: 0 20px;
-            gap: 30px;
         }
 
-        /* 왼쪽 순위 리스트 섹션 */
+        /* 순위 리스트 메인 섹션 */
         .list-section {
-            flex: 1;
             background-color: var(--panel-bg);
             border-radius: 8px;
             border: 1px solid var(--border-color);
             overflow: hidden;
-            height: fit-content;
+            width: 100%;
         }
 
-        /* 리스트 아이템 구조 */
+        /* 리스트 한 칸의 스타일 */
         .list-item {
-            display: flex;
-            align-items: center;
-            padding: 20px 25px;
             border-bottom: 1px solid var(--border-color);
-            gap: 25px;
+            padding: 20px 25px;
         }
 
         .list-item:last-child {
             border-bottom: none;
+        }
+
+        /* 상단 항상 보이는 기본 정보 줄 */
+        .item-main-row {
+            display: flex;
+            align-items: center;
+            gap: 25px;
         }
 
         .rank {
@@ -77,7 +78,7 @@
             text-align: center;
         }
 
-        /* ⭐ 썸네일 크기 대폭 확대 (140 -> 180) */
+        /* 큼직한 썸네일 스타일 */
         .list-thumbnail {
             width: 180px;
             height: 101px;
@@ -91,9 +92,9 @@
             transition: transform 0.2s, border-color 0.2s;
         }
 
-        /* 썸네일에 마우스 올리면 유튜브 이동 유도 효과 */
+        /* 썸네일에 마우스 올리면 유튜브 느낌 나게 빨간 테두리 효과 */
         .list-thumbnail:hover {
-            transform: scale(1.04);
+            transform: scale(1.03);
             border-color: #ef4444; 
         }
 
@@ -103,11 +104,11 @@
             object-fit: cover;
         }
 
-        /* 클릭 가능한 제목/정보 영역 */
+        /* 클릭해서 상세 정보를 여는 글자 영역 */
         .map-info-click-area {
             flex: 1;
             cursor: pointer;
-            padding: 10px;
+            padding: 15px;
             border-radius: 6px;
             transition: background 0.2s;
         }
@@ -118,70 +119,35 @@
 
         .map-name {
             font-weight: bold;
-            font-size: 20px;
+            font-size: 22px;
             margin-bottom: 5px;
         }
 
         .map-creator {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--text-muted);
         }
 
-        /* 오른쪽 상세 정보창 */
-        .detail-section {
-            width: 480px;
-            position: sticky;
-            top: 30px;
-            height: fit-content;
-        }
-
-        .panel {
-            background-color: var(--panel-bg);
-            border-radius: 8px;
+        /* ⭐ 제목을 누르면 아래로 펼쳐지는 상세 정보창 */
+        .item-detail-box {
+            display: none; /* 기본 상태는 숨김 */
+            background-color: #131820;
+            border-radius: 6px;
+            margin-top: 15px;
+            padding: 20px;
             border: 1px solid var(--border-color);
-            padding: 25px;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
-        .placeholder-text {
-            text-align: center;
-            color: var(--text-muted);
+        /* active 클래스가 붙으면 펼쳐짐 */
+        .list-item.active .item-detail-box {
+            display: block;
+        }
+
+        .map-description {
             font-size: 15px;
             line-height: 1.6;
-        }
-
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 6px;
-            background-color: #000;
-            margin-bottom: 20px;
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        .detail-title {
-            font-size: 26px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .detail-creator {
-            color: var(--text-muted);
-            font-size: 15px;
-            margin-bottom: 20px;
+            margin: 0 0 15px 0;
+            color: var(--text-color);
         }
 
         .info-grid {
@@ -190,7 +156,6 @@
             gap: 15px;
             border-top: 1px solid var(--border-color);
             padding-top: 15px;
-            margin-top: 15px;
         }
 
         .info-label {
@@ -204,11 +169,6 @@
             font-weight: bold;
             margin-top: 2px;
         }
-
-        @media (max-width: 900px) {
-            .container { flex-direction: column; }
-            .detail-section { width: auto; position: static; }
-        }
     </style>
 </head>
 <body>
@@ -220,18 +180,10 @@
 
     <div class="container">
         <div class="list-section" id="mapList"></div>
-
-        <div class="detail-section">
-            <div class="panel" id="detailPanel">
-                <div class="placeholder-text">
-                    👈 순위표에서 맵 정보를 클릭하면<br>상세 데이터를 볼 수 있습니다!
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
-        // 맵 데이터 목록 (유튜브 링크를 자유롭게 넣어주세요)
+        // 맵 데이터 목록 (유튜브 주소창 링크를 복사해서 편하게 바꿀 수 있습니다)
         const mapData = [
             {
                 rank: 1,
@@ -280,24 +232,6 @@
             }
         }
 
-        function convertToEmbedUrl(url) {
-            try {
-                let videoId = '';
-                if (url.includes('youtu.be/')) {
-                    videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
-                } else if (url.includes('youtube.com/embed/')) {
-                    return url;
-                } else if (url.includes('v=')) {
-                    videoId = url.split('v=')[1].split('&')[0];
-                } else {
-                    videoId = url;
-                }
-                return `https://www.youtube.com/embed/${videoId}`;
-            } catch (e) {
-                return url;
-            }
-        }
-
         function renderList() {
             const listContainer = document.getElementById('mapList');
             listContainer.innerHTML = '';
@@ -308,61 +242,54 @@
                 
                 const thumbUrl = getYoutubeThumbnail(map.videoUrl);
 
-                // 썸네일 영역과 글자 정보 영역을 철저히 분리
                 item.innerHTML = `
-                    <div class="rank">#${map.rank}</div>
-                    <div class="list-thumbnail" title="유튜브 영상 보러가기">
-                        <img src="${thumbUrl}" alt="${map.name} thumbnail">
+                    <div class="item-main-row">
+                        <div class="rank">#${map.rank}</div>
+                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
+                            <img src="${thumbUrl}" alt="${map.name} thumbnail">
+                        </div>
+                        <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
+                            <div class="map-name">${map.name}</div>
+                            <div class="map-creator">By ${map.creator}</div>
+                        </div>
                     </div>
-                    <div class="map-info-click-area">
-                        <div class="map-name">${map.name}</div>
-                        <div class="map-creator">By ${map.creator}</div>
+                    <div class="item-detail-box">
+                        <p class="map-description">${map.description}</p>
+                        <div class="info-grid">
+                            <div>
+                                <div class="info-label">난이도</div>
+                                <div class="info-value" style="color: #ef4444;">${map.difficulty}</div>
+                            </div>
+                            <div>
+                                <div class="info-label">퍼블리셔</div>
+                                <div class="info-value">${map.publisher}</div>
+                            </div>
+                        </div>
                     </div>
                 `;
                 
-                // 1. 썸네일을 누르면 유튜브 새 창으로 이동
+                // 1. 🚨 썸네일 클릭: 유튜브 새 창 띄우기
                 const thumbBtn = item.querySelector('.list-thumbnail');
                 thumbBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // 제목 클릭 이벤트와 겹치지 않게 방어
+                    e.stopPropagation(); // 제목 클릭 이벤트가 같이 켜지는 것 방지
                     window.open(map.videoUrl, '_blank');
                 });
 
-                // 2. 제목 정보 영역을 누르면 우측 패널에 맵 정보 표시
+                // 2. 🚨 제목 영역 클릭: 내 자리에 상세 박스 폈다 접었다 하기
                 const infoBtn = item.querySelector('.map-info-click-area');
                 infoBtn.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    
+                    // 다른 펼쳐진 박스들을 다 접고 싶다면 아래 한 줄 주석 해제 (지금은 독립 작동)
                     document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-                    item.classList.add('active');
-                    showDetail(map);
+                    
+                    if (!isActive) {
+                        item.classList.add('active');
+                    }
                 });
 
                 listContainer.appendChild(item);
             });
-        }
-
-        function showDetail(map) {
-            const detailPanel = document.getElementById('detailPanel');
-            const embedUrl = convertToEmbedUrl(map.videoUrl);
-            
-            detailPanel.style.justifyContent = 'flex-start';
-            detailPanel.innerHTML = `
-                <div class="video-container">
-                    <iframe src="${embedUrl}" allowfullscreen></iframe>
-                </div>
-                <div class="detail-title">${map.name}</div>
-                <div class="detail-creator">By ${map.creator}</div>
-                <p style="font-size: 14px; line-height: 1.6; color: var(--text-color); margin: 0 0 20px 0;">${map.description}</p>
-                
-                <div class="info-grid">
-                    <div>
-                        <div class="info-label">난이도</div>
-                        <div class="info-value" style="color: #ef4444;">${map.difficulty}</div>
-                    </div>
-                    <div>
-                        <div class="info-label">퍼블리셔</div>
-                        <div class="info-value">${map.publisher}</div>
-                    </div>
-                </div>
-            `;
         }
 
         renderList();
