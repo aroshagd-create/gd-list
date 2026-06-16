@@ -55,7 +55,7 @@
             overflow: hidden;
         }
 
-        /* ⭐ 포인터크레이트 스타일로 개조된 리스트 아이템 */
+        /* 포인터크레이트 스타일 리스트 아이템 */
         .list-item {
             display: flex;
             align-items: center;
@@ -78,7 +78,7 @@
             text-align: center;
         }
 
-        /* ⭐ 순위표 각 줄 옆에 뜨는 미니 썸네일 박스 */
+        /* 순위표 미니 썸네일 박스 */
         .list-thumbnail {
             width: 80px;
             height: 45px;
@@ -201,7 +201,7 @@
     </div>
 
     <script>
-        // 맵 데이터 (유튜브 주소 뒤의 ID를 추출해서 썸네일을 만듭니다)
+        // 맵 데이터 (여기에 원하는 맵 정보와 유튜브 링크를 계속 넣으시면 됩니다)
         const mapData = [
             {
                 rank: 1,
@@ -209,8 +209,7 @@
                 creator: "Riot & more",
                 difficulty: "Extreme Demon",
                 publisher: "Riot",
-                // 테스트용 샘플 지메 유튜브 링크들입니다. 나중에 원하는 걸로 교체하세요!
-                videoUrl: "https://www.youtube.com/embed/Sg3NfK1T7p4", 
+                videoUrl: "https://www.youtube.com/watch?v=Sg3NfK1T7p4", 
                 description: "현재 비주얼과 게임플레이 퀄리티 밸런스가 가장 뛰어난 최상위 맵입니다."
             },
             {
@@ -219,7 +218,7 @@
                 creator: "IcedCave",
                 difficulty: "Extreme Demon",
                 publisher: "SpaceUK",
-                videoUrl: "https://www.youtube.com/embed/eXbN8Lp_R84",
+                videoUrl: "https://www.youtube.com/watch?v=eXbN8Lp_R84",
                 description: "압도적인 분위기와 다크한 헬스타일 연출이 돋보이는 명작입니다."
             },
             {
@@ -228,19 +227,46 @@
                 creator: "MindCap & More",
                 difficulty: "Extreme Demon",
                 publisher: "MindCap",
-                videoUrl: "https://www.youtube.com/embed/fA8S_7vXg6M",
+                videoUrl: "https://www.youtube.com/watch?v=fA8S_7vXg6M",
                 description: "기믹과 이펙트의 끝판왕. 지메 역사상 가장 창의적인 맵 중 하나입니다."
             }
         ];
 
-        // 유튜브 링크에서 썸네일 이미지 주소를 따오는 마법의 함수
-        function getYoutubeThumbnail(embedUrl) {
+        // 어떤 유튜브 링크 주소든 무조건 썸네일을 뽑아내는 업그레이드 마법 함수
+        function getYoutubeThumbnail(url) {
             try {
-                const parts = embedUrl.split('/');
-                const id = parts[parts.length - 1].split('?')[0];
-                return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+                let videoId = '';
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+                } else if (url.includes('youtube.com/embed/')) {
+                    videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
+                } else if (url.includes('v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else {
+                    videoId = url;
+                }
+                return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
             } catch (e) {
-                return 'https://via.placeholder.com/80x45'; // 링크 에러시 기본 이미지
+                return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="45" style="background:%23181d26;"></svg>';
+            }
+        }
+
+        // 유튜브 일반 링크를 embed용(임베드) 주소로 바꿔서 오른쪽 화면에 띄우는 함수
+        function convertToEmbedUrl(url) {
+            try {
+                let videoId = '';
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+                } else if (url.includes('youtube.com/embed/')) {
+                    return url;
+                } else if (url.includes('v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else {
+                    videoId = url;
+                }
+                return `https://www.youtube.com/embed/${videoId}`;
+            } catch (e) {
+                return url;
             }
         }
 
@@ -252,10 +278,8 @@
                 const item = document.createElement('div');
                 item.className = `list-item ${index === 0 ? 'active' : ''}`;
                 
-                // 유튜브 링크 기반으로 썸네일 주소 가져오기
                 const thumbUrl = getYoutubeThumbnail(map.videoUrl);
 
-                // ⭐ 구조 변경: 순위번호 -> 썸네일 이미지 -> 맵 정보 순서
                 item.innerHTML = `
                     <div class="rank">#${map.rank}</div>
                     <div class="list-thumbnail">
@@ -279,9 +303,11 @@
 
         function showDetail(map) {
             const detailPanel = document.getElementById('detailPanel');
+            const embedUrl = convertToEmbedUrl(map.videoUrl);
+            
             detailPanel.innerHTML = `
                 <div class="video-container">
-                    <iframe src="${map.videoUrl}" allowfullscreen></iframe>
+                    <iframe src="${embedUrl}" allowfullscreen></iframe>
                 </div>
                 <div class="detail-title">${map.name}</div>
                 <div class="detail-creator">By ${map.creator}</div>
