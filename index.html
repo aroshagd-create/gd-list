@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD Quality List</title>
+    <style>
+        :root {
+            --bg-color: #11141a;
+            --panel-bg: #181d26;
+            --accent-color: #3b82f6;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #242b38;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--accent-color);
+            letter-spacing: 1px;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            gap: 30px;
+        }
+
+        /* 왼쪽 순위 리스트 섹션 */
+        .list-section {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        /* ⭐ 포인터크레이트 스타일로 개조된 리스트 아이템 */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+            gap: 15px;
+        }
+
+        .list-item:hover, .list-item.active {
+            background-color: #1e2530;
+        }
+
+        .rank {
+            font-size: 16px;
+            font-weight: bold;
+            width: 40px;
+            color: var(--accent-color);
+            text-align: center;
+        }
+
+        /* ⭐ 순위표 각 줄 옆에 뜨는 미니 썸네일 박스 */
+        .list-thumbnail {
+            width: 80px;
+            height: 45px;
+            background-color: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .list-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .map-info {
+            flex: 1;
+        }
+
+        .map-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .map-creator {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* 오른쪽 상세 정보창 */
+        .detail-section {
+            width: 450px;
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 6px;
+            background-color: #000;
+            margin-bottom: 15px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .detail-creator {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .container { flex-direction: column; }
+            .detail-section { width: auto; position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>GD QUALITY LIST</h1>
+        <div style="font-size: 14px; color: var(--text-muted);">TOP QUALITY MAPS</div>
+    </header>
+
+    <div class="container">
+        <div class="list-section" id="mapList"></div>
+
+        <div class="detail-section">
+            <div class="panel" id="detailPanel"></div>
+        </div>
+    </div>
+
+    <script>
+        // 맵 데이터 (유튜브 주소 뒤의 ID를 추출해서 썸네일을 만듭니다)
+        const mapData = [
+            {
+                rank: 1,
+                name: "Acheron",
+                creator: "Riot & more",
+                difficulty: "Extreme Demon",
+                publisher: "Riot",
+                // 테스트용 샘플 지메 유튜브 링크들입니다. 나중에 원하는 걸로 교체하세요!
+                videoUrl: "https://www.youtube.com/embed/Sg3NfK1T7p4", 
+                description: "현재 비주얼과 게임플레이 퀄리티 밸런스가 가장 뛰어난 최상위 맵입니다."
+            },
+            {
+                rank: 2,
+                name: "Slaughterhouse",
+                creator: "IcedCave",
+                difficulty: "Extreme Demon",
+                publisher: "SpaceUK",
+                videoUrl: "https://www.youtube.com/embed/eXbN8Lp_R84",
+                description: "압도적인 분위기와 다크한 헬스타일 연출이 돋보이는 명작입니다."
+            },
+            {
+                rank: 3,
+                name: "Limbo",
+                creator: "MindCap & More",
+                difficulty: "Extreme Demon",
+                publisher: "MindCap",
+                videoUrl: "https://www.youtube.com/embed/fA8S_7vXg6M",
+                description: "기믹과 이펙트의 끝판왕. 지메 역사상 가장 창의적인 맵 중 하나입니다."
+            }
+        ];
+
+        // 유튜브 링크에서 썸네일 이미지 주소를 따오는 마법의 함수
+        function getYoutubeThumbnail(embedUrl) {
+            try {
+                const parts = embedUrl.split('/');
+                const id = parts[parts.length - 1].split('?')[0];
+                return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+            } catch (e) {
+                return 'https://via.placeholder.com/80x45'; // 링크 에러시 기본 이미지
+            }
+        }
+
+        function renderList() {
+            const listContainer = document.getElementById('mapList');
+            listContainer.innerHTML = '';
+
+            mapData.forEach((map, index) => {
+                const item = document.createElement('div');
+                item.className = `list-item ${index === 0 ? 'active' : ''}`;
+                
+                // 유튜브 링크 기반으로 썸네일 주소 가져오기
+                const thumbUrl = getYoutubeThumbnail(map.videoUrl);
+
+                // ⭐ 구조 변경: 순위번호 -> 썸네일 이미지 -> 맵 정보 순서
+                item.innerHTML = `
+                    <div class="rank">#${map.rank}</div>
+                    <div class="list-thumbnail">
+                        <img src="${thumbUrl}" alt="${map.name} thumbnail">
+                    </div>
+                    <div class="map-info">
+                        <div class="map-name">${map.name}</div>
+                        <div class="map-creator">${map.creator}</div>
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+                    item.classList.add('active');
+                    showDetail(map);
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        function showDetail(map) {
+            const detailPanel = document.getElementById('detailPanel');
+            detailPanel.innerHTML = `
+                <div class="video-container">
+                    <iframe src="${map.videoUrl}" allowfullscreen></iframe>
+                </div>
+                <div class="detail-title">${map.name}</div>
+                <div class="detail-creator">By ${map.creator}</div>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--text-color);">${map.description}</p>
+                
+                <div class="info-grid">
+                    <div>
+                        <div class="info-label">난이도</div>
+                        <div class="info-value" style="color: #ef4444;">${map.difficulty}</div>
+                    </div>
+                    <div>
+                        <div class="info-label">퍼블리셔</div>
+                        <div class="info-value">${map.publisher}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderList();
+        if(mapData.length > 0) showDetail(mapData[0]);
+    </script>
+</body>
+</html>
