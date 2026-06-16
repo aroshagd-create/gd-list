@@ -78,7 +78,7 @@
             text-align: center;
         }
 
-        /* 큼직한 썸네일 스타일 */
+        /* 큼직한 썸네일 스타일 (180x101 유지) */
         .list-thumbnail {
             width: 180px;
             height: 101px;
@@ -103,13 +103,15 @@
             object-fit: cover;
         }
 
-        /* 클릭해서 상세 정보를 여는 글자 영역 */
+        /* 클릭해서 상세 정보를 여는 글자 영역 (제작자가 빠져서 세로 정렬 중앙으로 최적화) */
         .map-info-click-area {
             flex: 1;
             cursor: pointer;
-            padding: 15px;
+            padding: 20px 15px;
             border-radius: 6px;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
         }
 
         .map-info-click-area:hover, .list-item.active .map-info-click-area {
@@ -119,12 +121,6 @@
         .map-name {
             font-weight: bold;
             font-size: 22px;
-            margin-bottom: 5px;
-        }
-
-        .map-creator {
-            font-size: 15px;
-            color: var(--text-muted);
         }
 
         /* 제목을 누르면 아래로 펼쳐지는 상세 정보창 */
@@ -141,7 +137,7 @@
             display: block;
         }
 
-        /* 3열 데이터 격자 배치 */
+        /* 변경된 시트에 맞춰 3열 데이터 격자 배치 */
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -160,54 +156,58 @@
             font-weight: bold;
             margin-top: 4px;
         }
+
+        /* 로딩 애니메이션 스타일 */
+        .loading-text {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>GD QUALITY LEVEL LIST</h1>
-        <div style="font-size: 14px; color: var(--text-muted);">TOP QUALITY MAPS</div>
+        <div style="font-size: 14px; color: var(--text-muted);">LIVE TRACKING</div>
     </header>
 
     <div class="container">
-        <div class="list-section" id="mapList"></div>
+        <div class="list-section" id="mapList">
+            <div class="loading-text">구글 스프레드시트에서 실시간 순위표를 불러오는 중...</div>
+        </div>
     </div>
 
     <script>
-        // 맵 데이터 목록 (description 대신 rating 항목을 추가했습니다)
-        const mapData = [
-            {
-                rank: 1,
-                name: "Acheron",
-                creator: "Riot & more",
-                objects: "142,352",
-                publisher: "Riot",
-                rating: "Featured", // 레이팅 정보 (Featured, Epic, Legendary, Mythic, Unfeatured 등)
-                ratingColor: "#ffcc00", // 레이팅 강조용 색상 (Featured는 노란빛)
-                videoUrl: "https://www.youtube.com/watch?v=Sg3NfK1T7p4"
-            },
-            {
-                rank: 2,
-                name: "Slaughterhouse",
-                creator: "IcedCave",
-                objects: "78,214",
-                publisher: "SpaceUK",
-                rating: "Epic", 
-                ratingColor: "#ff3366", // Epic은 불타는 핑크/빨강 계열
-                videoUrl: "https://www.youtube.com/watch?v=eXbN8Lp_R84"
-            },
-            {
-                rank: 3,
-                name: "Limbo",
-                creator: "MindCap & More",
-                objects: "324,511",
-                publisher: "MindCap",
-                rating: "Mythic", 
-                ratingColor: "#00ffff", // Mythic 등급은 시안 블루 계열
-                videoUrl: "https://www.youtube.com/watch?v=fA8S_7vXg6M"
-            }
-        ];
+        // 🚨 관리자님의 실시간 구글 스프레드시트 주소
+        const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
 
+        // CSV 구문 분석 엔진
+        function parseCSV(csvText) {
+            const lines = csvText.split("\n");
+            const headers = lines[0].split(",").map(h => h.trim());
+            const result = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const obj = {};
+                
+                headers.forEach((header, index) => {
+                    let value = currentline[index] ? currentline[index].trim() : "";
+                    if (value.startsWith('"') && value.endsWith('"')) {
+                        value = value.slice(1, -1);
+                    }
+                    obj[header] = value;
+                });
+                result.push(obj);
+            }
+            return result;
+        }
+
+        // 유튜브 썸네일 추출 함수
         function getYoutubeThumbnail(url) {
             try {
                 let videoId = '';
@@ -226,66 +226,97 @@
             }
         }
 
-        function renderList() {
-            const listContainer = document.getElementById('mapList');
-            listContainer.innerHTML = '';
-
-            mapData.forEach((map) => {
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                
-                const thumbUrl = getYoutubeThumbnail(map.videoUrl);
-
-                // 설명창을 지우고 OBJECTS / PUBLISHER / RATING 3개 격자로 주입
-                item.innerHTML = `
-                    <div class="item-main-row">
-                        <div class="rank">#${map.rank}</div>
-                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
-                            <img src="${thumbUrl}" alt="${map.name} thumbnail">
-                        </div>
-                        <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
-                            <div class="map-name">${map.name}</div>
-                            <div class="map-creator">By ${map.creator}</div>
-                        </div>
-                    </div>
-                    <div class="item-detail-box">
-                        <div class="info-grid">
-                            <div>
-                                <div class="info-label">OBJECTS</div>
-                                <div class="info-value" style="color: #3b82f6;">${map.objects}</div>
-                            </div>
-                            <div>
-                                <div class="info-label">PUBLISHER</div>
-                                <div class="info-value">${map.publisher}</div>
-                            </div>
-                            <div>
-                                <div class="info-label">RATING</div>
-                                <div class="info-value" style="color: ${map.ratingColor || '#fff'};">${map.rating}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                const thumbBtn = item.querySelector('.list-thumbnail');
-                thumbBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    window.open(map.videoUrl, '_blank');
-                });
-
-                const infoBtn = item.querySelector('.map-info-click-area');
-                infoBtn.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-                    if (!isActive) {
-                        item.classList.add('active');
-                    }
-                });
-
-                listContainer.appendChild(item);
-            });
+        // 레이팅별 고정 포인트 컬러 세팅 (시트 간소화 대응)
+        function getRatingColor(rating) {
+            if (!rating) return '#fff';
+            const r = rating.toLowerCase();
+            if (r.includes('mythic')) return '#00ffff';      // 민트/시안
+            if (r.includes('legendary')) return '#cc66ff';   // 보라
+            if (r.includes('epic')) return '#ff3366';        // 핑크레드
+            if (r.includes('featured')) return '#ffcc00';    // 노랑
+            if (r.includes('rated') || r.includes('rate')) return '#3b82f6'; // 파랑 (관리자님 시트 맞춤형 추가 ⭐)
+            return '#94a3b8'; // 기본 회색
         }
 
-        renderList();
+        // 데이터 렌더링 엔진
+        async function loadSheetData() {
+            const listContainer = document.getElementById('mapList');
+            
+            try {
+                const response = await fetch(`${sheetCsvUrl}&_ts=${Date.now()}`);
+                const csvText = await response.text();
+                const mapData = parseCSV(csvText);
+
+                if (mapData.length === 0) {
+                    listContainer.innerHTML = '<div class="loading-text">시트에 입력된 레벨 데이터가 없습니다.</div>';
+                    return;
+                }
+
+                listContainer.innerHTML = '';
+
+                mapData.forEach((map) => {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    
+                    const thumbUrl = getYoutubeThumbnail(map.videoUrl || "");
+                    const rColor = getRatingColor(map.rating);
+
+                    // 🚨 변경된 스프레드시트 컬럼에 딱 맞춰 출력 데이터를 완벽 최적화!
+                    item.innerHTML = `
+                        <div class="item-main-row">
+                            <div class="rank">#${map.rank || '-'}</div>
+                            <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
+                                <img src="${thumbUrl}" alt="${map.name || 'Map'} thumbnail">
+                            </div>
+                            <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
+                                <div class="map-name">${map.name || 'Unknown'}</div>
+                            </div>
+                        </div>
+                        <div class="item-detail-box">
+                            <div class="info-grid">
+                                <div>
+                                    <div class="info-label">OBJECTS</div>
+                                    <div class="info-value" style="color: #e2e8f0;">${map.objects || '0'}</div>
+                                </div>
+                                <div>
+                                    <div class="info-label">PUBLISHER</div>
+                                    <div class="info-value" style="color: #3b82f6;">${map.publisher || '-'}</div>
+                                </div>
+                                <div>
+                                    <div class="info-label">RATING</div>
+                                    <div class="info-value" style="color: ${rColor};">${map.rating || 'None'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const thumbBtn = item.querySelector('.list-thumbnail');
+                    thumbBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (map.videoUrl) {
+                            window.open(map.videoUrl, '_blank');
+                        }
+                    });
+
+                    const infoBtn = item.querySelector('.map-info-click-area');
+                    infoBtn.addEventListener('click', () => {
+                        const isActive = item.classList.contains('active');
+                        document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+                        if (!isActive) {
+                            item.classList.add('active');
+                        }
+                    });
+
+                    listContainer.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error(error);
+                listContainer.innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다. 스프레드시트의 첫 줄 항목 스펠링을 다시 확인해 주세요.</div>';
+            }
+        }
+
+        loadSheetData();
     </script>
 </body>
 </html>
