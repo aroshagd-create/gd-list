@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <meta name="google-site-verification" content="rpnE6jyQRrMHiu6hUZwKHoFyUbrr3xN0BpoZedmqbGo" />
+
     <title>GD Quality Level List - 지메 퀄리티 리스트</title>
     <meta name="description" content="지오메트리 대시 최고 퀄리티 레벨 순위표! 실시간으로 업데이트되는 GD Quality Level List를 확인해 보세요.">
     <meta name="keywords" content="지메, 지오메트리대시, 지메 퀄리티 리스트, 퀄리티 리스트, GD, Geometry Dash, Quality List">
-    <meta name="author" content="GD List Administrator">
-
+    
     <meta property="og:type" content="website">
     <meta property="og:title" content="GD Quality Level List">
     <meta property="og:description" content="지오메트리 대시 최고 퀄리티 레벨 순위표!">
@@ -225,17 +226,19 @@
             }
         }
 
+        // 🎨 등급별 커스텀 컬러 세팅
         function getRatingColor(rating) {
             if (!rating) return '#fff';
             const r = rating.toLowerCase().trim();
-            if (r.includes('mythic')) return '#7dd3fc';     
-            if (r.includes('legendary')) return '#f472b6';  
-            if (r.includes('epic')) return '#ef4444';       
-            if (r.includes('featured')) return '#fb923c';   
-            if (r.includes('rated')) return '#94a3b8';      
+            if (r.includes('mythic')) return '#7dd3fc';     // 하늘색 계열
+            if (r.includes('legendary')) return '#f472b6';  // 분홍색 계열
+            if (r.includes('epic')) return '#ef4444';       // 빨간색
+            if (r.includes('featured')) return '#fb923c';   // 붉은기 도는 주황색
+            if (r.includes('rated')) return '#94a3b8';      // 회색
             return '#e2e8f0'; 
         }
 
+        // 📊 오브젝트 개수별 스마트 자동 컬러 변화기
         function getObjectsColor(objectsStr) {
             if (!objectsStr) return '#e2e8f0';
             const count = parseInt(objectsStr.replace(/[^0-9]/g, ''), 10);
