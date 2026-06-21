@@ -118,7 +118,6 @@
             transition: background 0.2s;
             display: flex;
             align-items: center;
-            /* 🛠️ 모바일 등에서 글자가 길어지면 잘리지 않고 다음 줄로 넘어가도록 설정 */
             white-space: normal;
             word-break: break-word;
         }
@@ -172,44 +171,19 @@
             font-size: 16px;
         }
 
-        /* 📱 스마트폰/모바일 화면 최적화 세팅 (반응형 코드 추가) */
+        /* 📱 모바일 반응형 디자인 */
         @media (max-width: 600px) {
-            header {
-                padding: 15px 20px;
-            }
-            header h1 {
-                font-size: 16px;
-            }
-            .list-item {
-                padding: 15px 15px;
-            }
-            .item-main-row {
-                gap: 12px;
-            }
-            .rank {
-                font-size: 16px;
-                width: 30px;
-            }
-            .list-thumbnail {
-                width: 110px;
-                height: 62px;
-            }
-            .map-name {
-                font-size: 17px;
-            }
-            .map-info-click-area {
-                padding: 10px 5px;
-            }
-            .item-detail-box {
-                padding: 12px;
-                margin-top: 10px;
-            }
-            .info-value {
-                font-size: 13px;
-            }
-            .info-label {
-                font-size: 10px;
-            }
+            header { padding: 15px 20px; }
+            header h1 { font-size: 16px; }
+            .list-item { padding: 15px 15px; }
+            .item-main-row { gap: 12px; }
+            .rank { font-size: 16px; width: 30px; }
+            .list-thumbnail { width: 110px; height: 62px; }
+            .map-name { font-size: 17px; }
+            .map-info-click-area { padding: 10px 5px; }
+            .item-detail-box { padding: 12px; margin-top: 10px; }
+            .info-value { font-size: 13px; }
+            .info-label { font-size: 10px; }
         }
     </style>
 </head>
@@ -270,32 +244,39 @@
             }
         }
 
+        // 🎨 1. 등급별 컬러 세팅 (Unrated 추가 완료)
         function getRatingColor(rating) {
             if (!rating) return '#fff';
             const r = rating.toLowerCase().trim();
-            if (r.includes('mythic')) return '#7dd3fc';     
-            if (r.includes('legendary')) return '#f472b6';  
-            if (r.includes('epic')) return '#ef4444';       
-            if (r.includes('featured')) return '#fb923c';   
-            if (r.includes('rated')) return '#94a3b8';      
+            if (r.includes('mythic')) return '#7dd3fc';     // 하늘색 계열
+            if (r.includes('legendary')) return '#f472b6';  // 분홍색 계열
+            if (r.includes('epic')) return '#ef4444';       // 빨간색
+            if (r.includes('featured')) return '#fb923c';   // 주황색 계열
+            if (r.includes('rated')) return '#94a3b8';      // 회색
+            if (r.includes('unrated')) return '#475569';    // 🛠️ 어두운 슬레이트 회색 계열 추가!
             return '#e2e8f0'; 
         }
 
+        // 📊 2. 오브젝트(OBJECTS) 개수별 초정밀 세분화 컬러 트리
         function getObjectsColor(objectsStr) {
             if (!objectsStr) return '#e2e8f0';
             const count = parseInt(objectsStr.replace(/[^0-9]/g, ''), 10);
             if (isNaN(count)) return '#e2e8f0';
 
-            if (count >= 1000000) return '#ff2a2a'; 
-            if (count >= 500000) return '#ff8800';  
-            if (count >= 200000) return '#ffcc00';  
-            if (count >= 100000) return '#e066ff';  
-            if (count >= 50000) return '#a855f7';   
-            if (count >= 25000) return '#22c55e';   
-            if (count >= 10000) return '#10b981';   
-            if (count >= 5000) return '#06b6d4';    
-            if (count >= 1000) return '#3b82f6';    
-            return '#94a3b8'; 
+            if (count >= 1000000) return '#ff0055'; // 100만 이상: 하이퍼 네온 핑크 레드
+            if (count >= 750000) return '#ff3300';  // 75만 이상: 핫 파이어 레드
+            if (count >= 500000) return '#ff7700';  // 50만 이상: 진한 다크 오렌지
+            if (count >= 350000) return '#ffaa00';  // 35만 이상: 앰버 골드 (오렌지 옐로우)
+            if (count >= 200000) return '#ffd700';  // 20만 이상: 브라이트 골드 (Tidal Wave 구역 ✨)
+            if (count >= 150000) return '#d400ff';  // 15만 이상: 딥 마젠타 보라
+            if (count >= 100000) return '#a855f7';  // 10만 이상: 일렉트릭 퍼플
+            if (count >= 75000) return '#6366f1';   // 7만 5천 이상: 인디고 블루
+            if (count >= 50000) return '#3b82f6';   // 5만 이상: 스카이 네온 블루
+            if (count >= 25000) return '#06b6d4';   // 2만 5천 이상: 라이트 시안 터코이즈
+            if (count >= 10000) return '#10b981';   // 1만 이상: 에메랄드 그린
+            if (count >= 5000) return '#22c55e';    // 5천 이상: 선명한 연두색
+            if (count >= 1000) return '#84cc16';    // 1천 이상: 라임 그린
+            return '#64748b'; // 1000 미만: 차분한 다크 그레이
         }
 
         async function loadSheetData() {
