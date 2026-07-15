@@ -55,6 +55,71 @@
             padding: 0 20px;
         }
 
+        /* 🔍 검색 및 필터 컨트롤 패널 */
+        .control-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background-color: #11141a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: var(--text-color);
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #11141a;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
         .list-section {
             background-color: var(--panel-bg);
             border-radius: 8px;
@@ -175,6 +240,10 @@
         @media (max-width: 600px) {
             header { padding: 15px 20px; }
             header h1 { font-size: 16px; }
+            .control-panel { padding: 10px; gap: 10px; }
+            .search-box { min-width: 100%; }
+            .filter-buttons { width: 100%; display: flex; }
+            .filter-buttons .btn { flex: 1; text-align: center; font-size: 12px; padding: 8px 10px; }
             .list-item { padding: 15px 15px; }
             .item-main-row { gap: 12px; }
             .rank { font-size: 16px; width: 30px; }
@@ -195,6 +264,16 @@
     </header>
 
     <div class="container">
+        <div class="control-panel">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="레벨 이름 또는 퍼블리셔 검색..." oninput="filterAndRenderData()">
+            </div>
+            <div class="filter-buttons">
+                <button class="btn active" id="btnRank" onclick="changeSortMode('rank')">순위순</button>
+                <button class="btn" id="btnObjects" onclick="changeSortMode('objects')">오브젝트순</button>
+            </div>
+        </div>
+
         <div class="list-section" id="mapList">
             <div class="loading-text">구글 스프레드시트에서 실시간 순위표를 불러오는 중...</div>
         </div>
@@ -202,6 +281,9 @@
 
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
+
+        let rawMapData = []; // 시트에서 가져온 원본 데이터 저장소
+        let currentSortMode = 'rank'; // 'rank' or 'objects'
 
         function parseCSV(csvText) {
             const lines = csvText.split("\n");
@@ -244,115 +326,160 @@
             }
         }
 
-        // 🎨 1. 등급별 컬러 세팅 (Unrated 추가 완료)
         function getRatingColor(rating) {
             if (!rating) return '#fff';
             const r = rating.toLowerCase().trim();
-            if (r.includes('mythic')) return '#7dd3fc';     // 하늘색 계열
-            if (r.includes('legendary')) return '#f472b6';  // 분홍색 계열
-            if (r.includes('epic')) return '#ef4444';       // 빨간색
-            if (r.includes('featured')) return '#fb923c';   // 주황색 계열
-            if (r.includes('rated')) return '#94a3b8';      // 회색
-            if (r.includes('unrated')) return '#475569';    // 🛠️ 어두운 슬레이트 회색 계열 추가!
+            if (r.includes('mythic')) return '#7dd3fc';     
+            if (r.includes('legendary')) return '#f472b6';  
+            if (r.includes('epic')) return '#ef4444';       
+            if (r.includes('featured')) return '#fb923c';   
+            if (r.includes('rated')) return '#94a3b8';      
+            if (r.includes('unrated')) return '#475569';    
             return '#e2e8f0'; 
         }
 
-        // 📊 2. 오브젝트(OBJECTS) 개수별 초정밀 세분화 컬러 트리
         function getObjectsColor(objectsStr) {
             if (!objectsStr) return '#e2e8f0';
             const count = parseInt(objectsStr.replace(/[^0-9]/g, ''), 10);
             if (isNaN(count)) return '#e2e8f0';
 
-            if (count >= 1000000) return '#ff0055'; // 100만 이상: 하이퍼 네온 핑크 레드
-            if (count >= 750000) return '#ff3300';  // 75만 이상: 핫 파이어 레드
-            if (count >= 500000) return '#ff7700';  // 50만 이상: 진한 다크 오렌지
-            if (count >= 350000) return '#ffaa00';  // 35만 이상: 앰버 골드 (오렌지 옐로우)
-            if (count >= 200000) return '#ffd700';  // 20만 이상: 브라이트 골드 (Tidal Wave 구역 ✨)
-            if (count >= 150000) return '#d400ff';  // 15만 이상: 딥 마젠타 보라
-            if (count >= 100000) return '#a855f7';  // 10만 이상: 일렉트릭 퍼플
-            if (count >= 75000) return '#6366f1';   // 7만 5천 이상: 인디고 블루
-            if (count >= 50000) return '#3b82f6';   // 5만 이상: 스카이 네온 블루
-            if (count >= 25000) return '#06b6d4';   // 2만 5천 이상: 라이트 시안 터코이즈
-            if (count >= 10000) return '#10b981';   // 1만 이상: 에메랄드 그린
-            if (count >= 5000) return '#22c55e';    // 5천 이상: 선명한 연두색
-            if (count >= 1000) return '#84cc16';    // 1천 이상: 라임 그린
-            return '#64748b'; // 1000 미만: 차분한 다크 그레이
+            if (count >= 1000000) return '#ff0055'; 
+            if (count >= 750000) return '#ff3300';  
+            if (count >= 500000) return '#ff7700';  
+            if (count >= 350000) return '#ffaa00';  
+            if (count >= 200000) return '#ffd700';  
+            if (count >= 150000) return '#d400ff';  
+            if (count >= 100000) return '#a855f7';  
+            if (count >= 75000) return '#6366f1';   
+            if (count >= 50000) return '#3b82f6';   
+            if (count >= 25000) return '#06b6d4';   
+            if (count >= 10000) return '#10b981';   
+            if (count >= 5000) return '#22c55e';    
+            if (count >= 1000) return '#84cc16';    
+            return '#64748b'; 
         }
 
-        async function loadSheetData() {
-            const listContainer = document.getElementById('mapList');
+        // 🔄 정렬 모드 전환 함수
+        function changeSortMode(mode) {
+            currentSortMode = mode;
             
+            document.getElementById('btnRank').classList.remove('active');
+            document.getElementById('btnObjects').classList.remove('active');
+
+            if (mode === 'rank') {
+                document.getElementById('btnRank').classList.add('active');
+            } else if (mode === 'objects') {
+                document.getElementById('btnObjects').classList.add('active');
+            }
+
+            filterAndRenderData();
+        }
+
+        // 🔍 검색 필터링 및 데이터 렌더링 코어 함수
+        function filterAndRenderData() {
+            const listContainer = document.getElementById('mapList');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            // 1. 검색어 필터링 (레벨명 또는 퍼블리셔 기준)
+            let filteredData = rawMapData.filter(map => {
+                const name = (map.name || '').toLowerCase();
+                const publisher = (map.publisher || '').toLowerCase();
+                return name.includes(searchKeyword) || publisher.includes(searchKeyword);
+            });
+
+            // 2. 정렬 방식 적용
+            if (currentSortMode === 'rank') {
+                // 순위순 (오름차순)
+                filteredData.sort((a, b) => {
+                    const rA = parseInt((a.rank || '9999').replace(/[^0-9]/g, ''), 10);
+                    const rB = parseInt((b.rank || '9999').replace(/[^0-9]/g, ''), 10);
+                    return rA - rB;
+                });
+            } else if (currentSortMode === 'objects') {
+                // 오브젝트 많은 순서순 (내림차순)
+                filteredData.sort((a, b) => {
+                    const oA = parseInt((a.objects || '0').replace(/[^0-9]/g, ''), 10);
+                    const oB = parseInt((b.objects || '0').replace(/[^0-9]/g, ''), 10);
+                    return oB - oA;
+                });
+            }
+
+            // 3. 화면 그리기
+            if (filteredData.length === 0) {
+                listContainer.innerHTML = '<div class="loading-text">검색 결과와 일치하는 레벨이 없습니다.</div>';
+                return;
+            }
+
+            listContainer.innerHTML = '';
+
+            filteredData.forEach((map) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                
+                const thumbUrl = getYoutubeThumbnail(map.videoUrl || "");
+                const rColor = getRatingColor(map.rating);
+                const oColor = getObjectsColor(map.objects);
+
+                item.innerHTML = `
+                    <div class="item-main-row">
+                        <div class="rank">#${map.rank || '-'}</div>
+                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
+                            <img src="${thumbUrl}" alt="${map.name || 'Map'} thumbnail">
+                        </div>
+                        <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
+                            <div class="map-name">${map.name || 'Unknown'}</div>
+                        </div>
+                    </div>
+                    <div class="item-detail-box">
+                        <div class="info-grid">
+                            <div>
+                                <div class="info-label">OBJECTS</div>
+                                <div class="info-value" style="color: ${oColor};">${map.objects || '0'}</div>
+                            </div>
+                            <div>
+                                <div class="info-label">PUBLISHER</div>
+                                <div class="info-value" style="color: #3b82f6;">${map.publisher || '-'}</div>
+                            </div>
+                            <div>
+                                <div class="info-label">RATING</div>
+                                <div class="info-value" style="color: ${rColor};">${map.rating || 'None'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const thumbBtn = item.querySelector('.list-thumbnail');
+                thumbBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (map.videoUrl) {
+                        window.open(map.videoUrl, '_blank');
+                    }
+                });
+
+                const infoBtn = item.querySelector('.map-info-click-area');
+                infoBtn.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+                    if (!isActive) {
+                        item.classList.add('active');
+                    }
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        // 🌐 최초 데이터 불러오기 함수
+        async function loadSheetData() {
             try {
                 const response = await fetch(`${sheetCsvUrl}&_ts=${Date.now()}`);
                 const csvText = await response.text();
-                const mapData = parseCSV(csvText);
+                rawMapData = parseCSV(csvText);
 
-                if (mapData.length === 0) {
-                    listContainer.innerHTML = '<div class="loading-text">시트에 입력된 레벨 데이터가 없습니다.</div>';
-                    return;
-                }
-
-                listContainer.innerHTML = '';
-
-                mapData.forEach((map) => {
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    
-                    const thumbUrl = getYoutubeThumbnail(map.videoUrl || "");
-                    const rColor = getRatingColor(map.rating);
-                    const oColor = getObjectsColor(map.objects);
-
-                    item.innerHTML = `
-                        <div class="item-main-row">
-                            <div class="rank">#${map.rank || '-'}</div>
-                            <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
-                                <img src="${thumbUrl}" alt="${map.name || 'Map'} thumbnail">
-                            </div>
-                            <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
-                                <div class="map-name">${map.name || 'Unknown'}</div>
-                            </div>
-                        </div>
-                        <div class="item-detail-box">
-                            <div class="info-grid">
-                                <div>
-                                    <div class="info-label">OBJECTS</div>
-                                    <div class="info-value" style="color: ${oColor};">${map.objects || '0'}</div>
-                                </div>
-                                <div>
-                                    <div class="info-label">PUBLISHER</div>
-                                    <div class="info-value" style="color: #3b82f6;">${map.publisher || '-'}</div>
-                                </div>
-                                <div>
-                                    <div class="info-label">RATING</div>
-                                    <div class="info-value" style="color: ${rColor};">${map.rating || 'None'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    const thumbBtn = item.querySelector('.list-thumbnail');
-                    thumbBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (map.videoUrl) {
-                            window.open(map.videoUrl, '_blank');
-                        }
-                    });
-
-                    const infoBtn = item.querySelector('.map-info-click-area');
-                    infoBtn.addEventListener('click', () => {
-                        const isActive = item.classList.contains('active');
-                        document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-                        if (!isActive) {
-                            item.classList.add('active');
-                        }
-                    });
-
-                    listContainer.appendChild(item);
-                });
-
+                filterAndRenderData();
             } catch (error) {
                 console.error(error);
-                listContainer.innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다. 스프레드시트 세팅을 확인해 주세요.</div>';
+                document.getElementById('mapList').innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다. 스프레드시트 세팅을 확인해 주세요.</div>';
             }
         }
 
