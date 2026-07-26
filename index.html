@@ -25,7 +25,6 @@
             --border-color: #242b38;
         }
 
-        /* 🛠️ 로딩 전 코드 튀어나옴 방지 설정 */
         html {
             background-color: #11141a;
         }
@@ -36,7 +35,6 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            opacity: 1;
         }
 
         header {
@@ -48,7 +46,7 @@
             align-items: center;
         }
 
-        /* 🔄 클릭 시 새로고침되도록 스타일 수정 */
+        /* 👑 클릭 & 꾹 누르기 지원 헤더 타이틀 */
         header h1 {
             margin: 0;
             font-size: 20px;
@@ -56,16 +54,13 @@
             letter-spacing: 1px;
             cursor: pointer;
             user-select: none;
+            -webkit-user-select: none;
             transition: opacity 0.2s, transform 0.1s;
+            touch-action: manipulation;
         }
 
-        header h1:hover {
-            opacity: 0.8;
-        }
-
-        header h1:active {
-            transform: scale(0.98);
-        }
+        header h1:hover { opacity: 0.8; }
+        header h1:active { transform: scale(0.98); }
 
         .container {
             max-width: 1000px;
@@ -73,7 +68,6 @@
             padding: 0 20px;
         }
 
-        /* 🔍 한 줄 슬림 컨트롤 패널 */
         .control-panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -85,9 +79,7 @@
             align-items: center;
         }
 
-        .search-box {
-            flex: 1;
-        }
+        .search-box { flex: 1; }
 
         .search-box input {
             width: 100%;
@@ -102,9 +94,7 @@
             transition: border-color 0.2s;
         }
 
-        .search-box input:focus {
-            border-color: var(--accent-color);
-        }
+        .search-box input:focus { border-color: var(--accent-color); }
 
         .filter-buttons {
             display: flex;
@@ -149,9 +139,7 @@
             padding: 20px 25px;
         }
 
-        .list-item:last-child {
-            border-bottom: none;
-        }
+        .list-item:last-child { border-bottom: none; }
 
         .item-main-row {
             display: flex;
@@ -222,9 +210,7 @@
             border: 1px solid var(--border-color);
         }
 
-        .list-item.active .item-detail-box {
-            display: block;
-        }
+        .list-item.active .item-detail-box { display: block; }
 
         .info-grid {
             display: grid;
@@ -252,7 +238,88 @@
             font-size: 16px;
         }
 
-        /* 📱 모바일 세로/가로 최적화 */
+        /* 📱 타이틀 꾹 눌렀을 때 뜨는 공유/복사 팝업 (Bottom Sheet) */
+        .action-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 9999;
+            backdrop-filter: blur(3px);
+        }
+
+        .action-modal-overlay.show { display: flex; }
+
+        .action-modal {
+            background-color: var(--panel-bg);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            box-sizing: border-box;
+            border-top: 1px solid var(--border-color);
+            animation: slideUp 0.25s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 8px;
+            background-color: #11141a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-btn:active { background-color: #222936; }
+
+        .modal-btn.cancel {
+            background-color: transparent;
+            border: none;
+            color: var(--text-muted);
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        /* Toast 알림 */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(59, 130, 246, 0.95);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            display: none;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         @media (max-width: 600px) {
             header { padding: 12px 15px; }
             header h1 { font-size: 15px; }
@@ -275,7 +342,7 @@
 <body>
 
     <header>
-        <h1 onclick="location.reload();">GD QUALITY LEVEL LIST</h1>
+        <h1 id="headerTitle">GD QUALITY LEVEL LIST</h1>
         <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
     </header>
 
@@ -295,12 +362,106 @@
         </div>
     </div>
 
+    <div class="action-modal-overlay" id="actionModal" onclick="closeModal()">
+        <div class="action-modal" onclick="event.stopPropagation()">
+            <div class="modal-title">GD Quality Level List 사이트 공유</div>
+            <button class="modal-btn" onclick="shareSite()">
+                <span>📤</span> 디스코드 / 카톡으로 공유하기
+            </button>
+            <button class="modal-btn" onclick="copySiteUrl()">
+                <span>🔗</span> 사이트 주소 복사하기
+            </button>
+            <button class="modal-btn cancel" onclick="closeModal()">취소</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">주소가 클립보드에 복사되었습니다!</div>
+
     <script>
         const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
 
         let rawMapData = [];
         let currentSortMode = 'rank';
 
+        /* 👑 헤더 타이틀 클릭 & 꾹 누르기(0.5초) 감지 */
+        const headerTitle = document.getElementById('headerTitle');
+        let pressTimer = null;
+        let isLongPress = false;
+
+        const startHeaderPress = () => {
+            isLongPress = false;
+            pressTimer = setTimeout(() => {
+                isLongPress = true;
+                openModal();
+            }, 500); // 0.5초 동안 누르면 팝업 열림
+        };
+
+        const cancelHeaderPress = () => {
+            if (pressTimer) clearTimeout(pressTimer);
+        };
+
+        headerTitle.addEventListener('touchstart', startHeaderPress, { passive: true });
+        headerTitle.addEventListener('touchend', (e) => {
+            cancelHeaderPress();
+            if (!isLongPress) {
+                location.reload(); // 짧게 터치하면 새로고침
+            }
+        });
+        headerTitle.addEventListener('touchmove', cancelHeaderPress);
+        
+        headerTitle.addEventListener('mousedown', startHeaderPress);
+        headerTitle.addEventListener('mouseup', (e) => {
+            cancelHeaderPress();
+            if (!isLongPress) {
+                location.reload(); // 짧게 클릭하면 새로고침
+            }
+        });
+        headerTitle.addEventListener('mouseleave', cancelHeaderPress);
+
+        function openModal() {
+            document.getElementById('actionModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('actionModal').classList.remove('show');
+        }
+
+        async function shareSite() {
+            closeModal();
+            const shareData = {
+                title: 'GD Quality Level List',
+                text: '지오메트리 대시 최고 퀄리티 레벨 순위표!',
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.log('공유 취소됨');
+                }
+            } else {
+                copySiteUrl();
+            }
+        }
+
+        function copySiteUrl() {
+            closeModal();
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast("사이트 주소가 복사되었습니다!");
+            }).catch(() => {
+                showToast("복사에 실패했습니다.");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }
+
+        /* 📊 시트 데이터 로딩 & 정렬 관련 함수 */
         function parseCSV(csvText) {
             const lines = csvText.split("\n");
             const headers = lines[0].split(",").map(h => h.trim());
@@ -308,10 +469,8 @@
 
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
-                
                 const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const obj = {};
-                
                 headers.forEach((header, index) => {
                     let value = currentline[index] ? currentline[index].trim() : "";
                     if (value.startsWith('"') && value.endsWith('"')) {
@@ -327,15 +486,10 @@
         function getYoutubeThumbnail(url) {
             try {
                 let videoId = '';
-                if (url.includes('youtu.be/')) {
-                    videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
-                } else if (url.includes('youtube.com/embed/')) {
-                    videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
-                } else if (url.includes('v=')) {
-                    videoId = url.split('v=')[1].split('&')[0];
-                } else {
-                    videoId = url;
-                }
+                if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+                else if (url.includes('youtube.com/embed/')) videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
+                else if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+                else videoId = url;
                 return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
             } catch (e) {
                 return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="101" style="background:%23181d26;"></svg>';
@@ -358,7 +512,6 @@
             if (!objectsStr) return '#e2e8f0';
             const count = parseInt(objectsStr.replace(/[^0-9]/g, ''), 10);
             if (isNaN(count)) return '#e2e8f0';
-
             if (count >= 1000000) return '#ff0055'; 
             if (count >= 750000) return '#ff3300';  
             if (count >= 500000) return '#ff7700';  
@@ -377,16 +530,10 @@
 
         function changeSortMode(mode) {
             currentSortMode = mode;
-            
             document.getElementById('btnRank').classList.remove('active');
             document.getElementById('btnObjects').classList.remove('active');
-
-            if (mode === 'rank') {
-                document.getElementById('btnRank').classList.add('active');
-            } else if (mode === 'objects') {
-                document.getElementById('btnObjects').classList.add('active');
-            }
-
+            if (mode === 'rank') document.getElementById('btnRank').classList.add('active');
+            else if (mode === 'objects') document.getElementById('btnObjects').classList.add('active');
             filterAndRenderData();
         }
 
@@ -432,7 +579,7 @@
                 item.innerHTML = `
                     <div class="item-main-row">
                         <div class="rank">#${map.rank || '-'}</div>
-                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 새 창 이동">
+                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 이동">
                             <img src="${thumbUrl}" alt="${map.name || 'Map'} thumbnail">
                         </div>
                         <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
@@ -456,22 +603,18 @@
                         </div>
                     </div>
                 `;
-                
+
                 const thumbBtn = item.querySelector('.list-thumbnail');
                 thumbBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (map.videoUrl) {
-                        window.open(map.videoUrl, '_blank');
-                    }
+                    if (map.videoUrl) window.open(map.videoUrl, '_blank');
                 });
 
                 const infoBtn = item.querySelector('.map-info-click-area');
                 infoBtn.addEventListener('click', () => {
                     const isActive = item.classList.contains('active');
                     document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-                    if (!isActive) {
-                        item.classList.add('active');
-                    }
+                    if (!isActive) item.classList.add('active');
                 });
 
                 listContainer.appendChild(item);
@@ -483,11 +626,10 @@
                 const response = await fetch(`${sheetCsvUrl}&_ts=${Date.now()}`);
                 const csvText = await response.text();
                 rawMapData = parseCSV(csvText);
-
                 filterAndRenderData();
             } catch (error) {
                 console.error(error);
-                document.getElementById('mapList').innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다. 스프레드시트 세팅을 확인해 주세요.</div>';
+                document.getElementById('mapList').innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다.</div>';
             }
         }
 
