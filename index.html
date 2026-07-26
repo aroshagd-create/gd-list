@@ -48,11 +48,23 @@
             align-items: center;
         }
 
+        /* 🔄 클릭 시 새로고침되도록 스타일 수정 */
         header h1 {
             margin: 0;
             font-size: 20px;
             color: var(--accent-color);
             letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        header h1:hover {
+            opacity: 0.8;
+        }
+
+        header h1:active {
+            transform: scale(0.98);
         }
 
         .container {
@@ -263,7 +275,7 @@
 <body>
 
     <header>
-        <h1>GD QUALITY LEVEL LIST</h1>
+        <h1 onclick="location.reload();">GD QUALITY LEVEL LIST</h1>
         <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
     </header>
 
