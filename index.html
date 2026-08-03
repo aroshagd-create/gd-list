@@ -184,7 +184,7 @@
             height: 100%;
             object-fit: cover;
             -webkit-touch-callout: none;
-            pointer-events: none; /* 클릭 이벤트가 부모 버블링을 방지하도록 설정 */
+            pointer-events: none;
         }
 
         .map-info-click-area {
@@ -455,7 +455,7 @@
             setTimeout(() => { toast.style.display = 'none'; }, 2000);
         }
 
-        /* 🛡️ 1. 완벽해진 CSV 파싱 알고리즘 (큰따옴표 및 쉼표 예외 처리) */
+        /* 🛡️ CSV 파싱 알고리즘 */
         function parseCSV(csvText) {
             const lines = csvText.split(/\r?\n/);
             if (lines.length === 0) return [];
@@ -465,7 +465,6 @@
 
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
-                const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const obj = {};
 
@@ -533,7 +532,7 @@
             filterAndRenderData();
         }
 
-        /* 🚀 2. DocumentFragment 적용 (DOM 고속 렌더링 최적화) */
+        /* 🚀 DocumentFragment 적용 (DOM 렌더링 최적화) */
         function filterAndRenderData() {
             const listContainer = document.getElementById('mapList');
             const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -555,7 +554,6 @@
                 return;
             }
 
-            // 메모리상에 임시 조각 생성 (화면 깜빡임 & 렉 방지)
             const fragment = document.createDocumentFragment();
 
             filteredData.forEach((map) => {
@@ -600,12 +598,10 @@
             listContainer.appendChild(fragment);
         }
 
-        /* 🚀 3. 이벤트 위임 (Event Delegation) 
-           - 카드 1,000개가 넘어도 부모(#mapList) 단 하나만 클릭 이벤트를 감지함 */
+        /* 🚀 이벤트 위임 (Event Delegation) */
         document.getElementById('mapList').addEventListener('click', (e) => {
             const target = e.target;
 
-            // 1) 썸네일 클릭 처리
             const thumbBtn = target.closest('.list-thumbnail');
             if (thumbBtn) {
                 e.stopPropagation();
@@ -614,7 +610,6 @@
                 return;
             }
 
-            // 2) 맵 상세 정보 토글 처리
             const infoBtn = target.closest('.map-info-click-area');
             if (infoBtn) {
                 const listItem = infoBtn.closest('.list-item');
@@ -625,40 +620,35 @@
             }
         });
 
-        /* 🚀 4. 스마트 캐싱 (5분 캐시 시스템 적용)
-           - 5분 이내에 접속/새로고침 시 구글 서버에 또 요청하지 않고 LocalStorage에서 빠르게 로드 */
+        /* 🚀 스마트 캐싱 (1분 캐시 적용) */
         async function loadSheetData() {
             const cacheKey = 'gd_list_data';
             const cacheTimeKey = 'gd_list_time';
-            const cacheDuration = 5 * 60 * 1000; // 5분 (300,000ms)
+            const cacheDuration = 1 * 60 * 1000; // ⏱️ 1분 (60,000ms)
 
             const cachedData = localStorage.getItem(cacheKey);
             const cachedTime = localStorage.getItem(cacheTimeKey);
             const now = Date.now();
 
             if (cachedData && cachedTime && (now - cachedTime < cacheDuration)) {
-                // 캐시 데이터 사용
                 rawMapData = JSON.parse(cachedData);
                 filterAndRenderData();
                 return;
             }
 
             try {
-                // 5분이 지났거나 첫 방문일 때만 새 데이터 로드
                 const response = await fetch(`${sheetCsvUrl}&_ts=${now}`);
                 if (!response.ok) throw new Error("Network response was not ok");
                 
                 const csvText = await response.text();
                 rawMapData = parseCSV(csvText);
 
-                // 로컬 스토리지에 캐시 저장
                 localStorage.setItem(cacheKey, JSON.stringify(rawMapData));
                 localStorage.setItem(cacheTimeKey, now.toString());
 
                 filterAndRenderData();
             } catch (error) {
                 console.error(error);
-                // 네트워크 에러 시 이전 캐시라도 표출
                 if (cachedData) {
                     rawMapData = JSON.parse(cachedData);
                     filterAndRenderData();
