@@ -25,9 +25,7 @@
             --border-color: #242b38;
         }
 
-        html {
-            background-color: #11141a;
-        }
+        html { background-color: #11141a; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -40,33 +38,27 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none; /* iOS 및 안드로이드 기본 팝업 방지 */
+            -webkit-touch-callout: none;
         }
 
         header {
             background-color: var(--panel-bg);
-            padding: 15px 30px;
+            padding: 18px 30px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        /* 👑 클릭: 새로고침 / 꾹 누름: 공유/복사 */
         header h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
             color: var(--accent-color);
             letter-spacing: 1px;
             cursor: pointer;
-            
-            /* 🚫 글자 선택 및 꾹 누름 팝업 완벽 차단 */
             -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
             user-select: none !important;
             -webkit-touch-callout: none !important;
-            
             transition: opacity 0.2s, transform 0.1s;
             touch-action: manipulation;
         }
@@ -76,32 +68,31 @@
 
         .container {
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 25px auto;
             padding: 0 20px;
         }
 
         .control-panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
         .search-box { flex: 1; }
 
-        /* 검색창에서는 타이핑 및 입력이 가능하도록 선택 허용 */
         .search-box input {
             width: 100%;
             background-color: #11141a;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 8px 12px;
+            border-radius: 8px;
+            padding: 10px 14px;
             color: var(--text-color);
-            font-size: 13px;
+            font-size: 14px;
             box-sizing: border-box;
             outline: none;
             transition: border-color 0.2s;
@@ -113,7 +104,7 @@
 
         .filter-buttons {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-shrink: 0;
         }
 
@@ -121,9 +112,9 @@
             background-color: #11141a;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.2s;
@@ -143,7 +134,7 @@
 
         .list-section {
             background-color: var(--panel-bg);
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
             overflow: hidden;
             width: 100%;
@@ -151,7 +142,7 @@
 
         .list-item {
             border-bottom: 1px solid var(--border-color);
-            padding: 20px 25px;
+            padding: 28px 30px;
         }
 
         .list-item:last-child { border-bottom: none; }
@@ -159,26 +150,26 @@
         .item-main-row {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 30px;
         }
 
         .rank {
-            font-size: 20px;
+            font-size: 26px;
             font-weight: bold;
-            width: 45px;
+            width: 60px;
             color: var(--accent-color);
             text-align: center;
         }
 
         .list-thumbnail {
-            width: 180px;
-            height: 101px;
+            width: 250px;
+            height: 140px;
             background-color: #000;
-            border-radius: 6px;
+            border-radius: 10px;
             overflow: hidden;
             border: 1px solid #2e3848;
             flex-shrink: 0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.5);
             cursor: pointer;
             transition: transform 0.2s, border-color 0.2s;
         }
@@ -193,13 +184,14 @@
             height: 100%;
             object-fit: cover;
             -webkit-touch-callout: none;
+            pointer-events: none; /* 클릭 이벤트가 부모 버블링을 방지하도록 설정 */
         }
 
         .map-info-click-area {
             flex: 1;
             cursor: pointer;
-            padding: 20px 15px;
-            border-radius: 6px;
+            padding: 15px 20px;
+            border-radius: 8px;
             transition: background 0.2s;
             display: flex;
             align-items: center;
@@ -213,16 +205,17 @@
 
         .map-name {
             font-weight: bold;
-            font-size: 22px;
+            font-size: 28px;
             line-height: 1.3;
+            pointer-events: none;
         }
 
         .item-detail-box {
             display: none;
             background-color: #131820;
-            border-radius: 6px;
-            margin-top: 15px;
-            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            padding: 22px;
             border: 1px solid var(--border-color);
         }
 
@@ -235,26 +228,26 @@
         }
 
         .info-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .info-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .loading-text {
             text-align: center;
-            padding: 40px;
+            padding: 50px;
             color: var(--text-muted);
-            font-size: 16px;
+            font-size: 17px;
         }
 
-        /* 📱 타이틀 꾹 눌렀을 때 뜨는 커스텀 팝업 (Bottom Sheet) */
+        /* 📱 모달 팝업 */
         .action-modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -319,7 +312,6 @@
             margin-bottom: 0;
         }
 
-        /* Toast 알림 */
         .toast {
             position: fixed;
             bottom: 80px;
@@ -337,25 +329,27 @@
         }
 
         @media (max-width: 600px) {
-            header { padding: 12px 15px; }
-            header h1 { font-size: 15px; }
-            .container { padding: 0 10px; margin: 12px auto; }
-            .control-panel { padding: 6px 8px; gap: 6px; }
-            .search-box input { padding: 6px 10px; font-size: 12px; }
-            .btn { padding: 6px 8px; font-size: 11px; }
-            .list-item { padding: 12px 10px; }
-            .item-main-row { gap: 10px; }
-            .rank { font-size: 15px; width: 28px; }
-            .list-thumbnail { width: 105px; height: 59px; }
-            .map-name { font-size: 16px; }
-            .map-info-click-area { padding: 8px 4px; }
-            .item-detail-box { padding: 10px; margin-top: 8px; }
-            .info-value { font-size: 12px; }
-            .info-label { font-size: 9px; }
+            header { padding: 14px 18px; }
+            header h1 { font-size: 16px; }
+            .container { padding: 0 10px; margin: 15px auto; }
+            .control-panel { padding: 8px 10px; gap: 8px; }
+            .search-box input { padding: 8px 10px; font-size: 12px; }
+            .btn { padding: 8px 10px; font-size: 11px; }
+            .list-item { padding: 18px 12px; }
+            .item-main-row { gap: 14px; }
+            .rank { font-size: 18px; width: 32px; }
+            .list-thumbnail { width: 140px; height: 78px; }
+            .map-name { font-size: 18px; }
+            .map-info-click-area { padding: 10px 6px; }
+            .item-detail-box { padding: 12px; margin-top: 10px; }
+            .info-value { font-size: 13px; }
+            .info-label { font-size: 10px; }
         }
     </style>
 </head>
-<body oncontextmenu="return false;"> <header>
+<body oncontextmenu="return false;">
+
+    <header>
         <h1 id="headerTitle">GD QUALITY LEVEL LIST</h1>
         <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
     </header>
@@ -397,66 +391,49 @@
         let rawMapData = [];
         let currentSortMode = 'rank';
 
-        /* 👑 헤더 타이틀 클릭 & 꾹 누르기(0.4초) 감지 */
+        /* 👑 헤더 타이틀 클릭 & 꾹 누르기 이벤트 */
         const headerTitle = document.getElementById('headerTitle');
         let pressTimer = null;
         let isLongPress = false;
 
-        const startHeaderPress = (e) => {
+        const startHeaderPress = () => {
             isLongPress = false;
             pressTimer = setTimeout(() => {
                 isLongPress = true;
                 openModal();
-            }, 400); // 0.4초 누르면 커스텀 팝업
+            }, 400);
         };
 
         const cancelHeaderPress = () => {
             if (pressTimer) clearTimeout(pressTimer);
         };
 
-        headerTitle.addEventListener('touchstart', (e) => {
-            startHeaderPress(e);
-        }, { passive: true });
-
-        headerTitle.addEventListener('touchend', (e) => {
+        headerTitle.addEventListener('touchstart', startHeaderPress, { passive: true });
+        headerTitle.addEventListener('touchend', () => {
             cancelHeaderPress();
-            if (!isLongPress) {
-                location.reload(); // 짧게 터치 시 새로고침
-            }
+            if (!isLongPress) location.reload();
         });
-
         headerTitle.addEventListener('touchmove', cancelHeaderPress);
         headerTitle.addEventListener('mousedown', startHeaderPress);
-        headerTitle.addEventListener('mouseup', (e) => {
+        headerTitle.addEventListener('mouseup', () => {
             cancelHeaderPress();
-            if (!isLongPress) {
-                location.reload();
-            }
+            if (!isLongPress) location.reload();
         });
         headerTitle.addEventListener('mouseleave', cancelHeaderPress);
 
-        function openModal() {
-            document.getElementById('actionModal').classList.add('show');
-        }
-
-        function closeModal() {
-            document.getElementById('actionModal').classList.remove('show');
-        }
+        function openModal() { document.getElementById('actionModal').classList.add('show'); }
+        function closeModal() { document.getElementById('actionModal').classList.remove('show'); }
 
         async function shareSite() {
             closeModal();
-            const shareData = {
-                title: 'GD Quality Level List',
-                text: '지오메트리 대시 최고 퀄리티 레벨 순위표!',
-                url: window.location.href
-            };
-
             if (navigator.share) {
                 try {
-                    await navigator.share(shareData);
-                } catch (err) {
-                    console.log('공유 취소');
-                }
+                    await navigator.share({
+                        title: 'GD Quality Level List',
+                        text: '지오메트리 대시 최고 퀄리티 레벨 순위표!',
+                        url: window.location.href
+                    });
+                } catch (err) {}
             } else {
                 copySiteUrl();
             }
@@ -478,20 +455,24 @@
             setTimeout(() => { toast.style.display = 'none'; }, 2000);
         }
 
-        /* 📊 데이터 불러오기 및 렌더링 */
+        /* 🛡️ 1. 완벽해진 CSV 파싱 알고리즘 (큰따옴표 및 쉼표 예외 처리) */
         function parseCSV(csvText) {
-            const lines = csvText.split("\n");
+            const lines = csvText.split(/\r?\n/);
+            if (lines.length === 0) return [];
+
             const headers = lines[0].split(",").map(h => h.trim());
             const result = [];
 
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
+                const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const obj = {};
+
                 headers.forEach((header, index) => {
                     let value = currentline[index] ? currentline[index].trim() : "";
                     if (value.startsWith('"') && value.endsWith('"')) {
-                        value = value.slice(1, -1);
+                        value = value.slice(1, -1).replace(/""/g, '"');
                     }
                     obj[header] = value;
                 });
@@ -507,9 +488,9 @@
                 else if (url.includes('youtube.com/embed/')) videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
                 else if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
                 else videoId = url;
-                return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
             } catch (e) {
-                return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="101" style="background:%23181d26;"></svg>';
+                return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="250" height="140" style="background:%23181d26;"></svg>';
             }
         }
 
@@ -547,13 +528,12 @@
 
         function changeSortMode(mode) {
             currentSortMode = mode;
-            document.getElementById('btnRank').classList.remove('active');
-            document.getElementById('btnObjects').classList.remove('active');
-            if (mode === 'rank') document.getElementById('btnRank').classList.add('active');
-            else if (mode === 'objects') document.getElementById('btnObjects').classList.add('active');
+            document.getElementById('btnRank').classList.toggle('active', mode === 'rank');
+            document.getElementById('btnObjects').classList.toggle('active', mode === 'objects');
             filterAndRenderData();
         }
 
+        /* 🚀 2. DocumentFragment 적용 (DOM 고속 렌더링 최적화) */
         function filterAndRenderData() {
             const listContainer = document.getElementById('mapList');
             const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -565,17 +545,9 @@
             });
 
             if (currentSortMode === 'rank') {
-                filteredData.sort((a, b) => {
-                    const rA = parseInt((a.rank || '9999').replace(/[^0-9]/g, ''), 10);
-                    const rB = parseInt((b.rank || '9999').replace(/[^0-9]/g, ''), 10);
-                    return rA - rB;
-                });
+                filteredData.sort((a, b) => parseInt((a.rank || '9999').replace(/[^0-9]/g, ''), 10) - parseInt((b.rank || '9999').replace(/[^0-9]/g, ''), 10));
             } else if (currentSortMode === 'objects') {
-                filteredData.sort((a, b) => {
-                    const oA = parseInt((a.objects || '0').replace(/[^0-9]/g, ''), 10);
-                    const oB = parseInt((b.objects || '0').replace(/[^0-9]/g, ''), 10);
-                    return oB - oA;
-                });
+                filteredData.sort((a, b) => parseInt((b.objects || '0').replace(/[^0-9]/g, ''), 10) - parseInt((a.objects || '0').replace(/[^0-9]/g, ''), 10));
             }
 
             if (filteredData.length === 0) {
@@ -583,7 +555,8 @@
                 return;
             }
 
-            listContainer.innerHTML = '';
+            // 메모리상에 임시 조각 생성 (화면 깜빡임 & 렉 방지)
+            const fragment = document.createDocumentFragment();
 
             filteredData.forEach((map) => {
                 const item = document.createElement('div');
@@ -596,7 +569,7 @@
                 item.innerHTML = `
                     <div class="item-main-row">
                         <div class="rank">#${map.rank || '-'}</div>
-                        <div class="list-thumbnail" title="클릭 시 유튜브 영상 이동">
+                        <div class="list-thumbnail" data-video="${map.videoUrl || ''}" title="클릭 시 유튜브 영상 이동">
                             <img src="${thumbUrl}" alt="${map.name || 'Map'} thumbnail">
                         </div>
                         <div class="map-info-click-area" title="클릭 시 맵 상세 정보 보기">
@@ -620,33 +593,78 @@
                         </div>
                     </div>
                 `;
-
-                const thumbBtn = item.querySelector('.list-thumbnail');
-                thumbBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (map.videoUrl) window.open(map.videoUrl, '_blank');
-                });
-
-                const infoBtn = item.querySelector('.map-info-click-area');
-                infoBtn.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
-                    if (!isActive) item.classList.add('active');
-                });
-
-                listContainer.appendChild(item);
+                fragment.appendChild(item);
             });
+
+            listContainer.innerHTML = '';
+            listContainer.appendChild(fragment);
         }
 
+        /* 🚀 3. 이벤트 위임 (Event Delegation) 
+           - 카드 1,000개가 넘어도 부모(#mapList) 단 하나만 클릭 이벤트를 감지함 */
+        document.getElementById('mapList').addEventListener('click', (e) => {
+            const target = e.target;
+
+            // 1) 썸네일 클릭 처리
+            const thumbBtn = target.closest('.list-thumbnail');
+            if (thumbBtn) {
+                e.stopPropagation();
+                const videoUrl = thumbBtn.getAttribute('data-video');
+                if (videoUrl) window.open(videoUrl, '_blank');
+                return;
+            }
+
+            // 2) 맵 상세 정보 토글 처리
+            const infoBtn = target.closest('.map-info-click-area');
+            if (infoBtn) {
+                const listItem = infoBtn.closest('.list-item');
+                const isActive = listItem.classList.contains('active');
+                
+                document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+                if (!isActive) listItem.classList.add('active');
+            }
+        });
+
+        /* 🚀 4. 스마트 캐싱 (5분 캐시 시스템 적용)
+           - 5분 이내에 접속/새로고침 시 구글 서버에 또 요청하지 않고 LocalStorage에서 빠르게 로드 */
         async function loadSheetData() {
+            const cacheKey = 'gd_list_data';
+            const cacheTimeKey = 'gd_list_time';
+            const cacheDuration = 5 * 60 * 1000; // 5분 (300,000ms)
+
+            const cachedData = localStorage.getItem(cacheKey);
+            const cachedTime = localStorage.getItem(cacheTimeKey);
+            const now = Date.now();
+
+            if (cachedData && cachedTime && (now - cachedTime < cacheDuration)) {
+                // 캐시 데이터 사용
+                rawMapData = JSON.parse(cachedData);
+                filterAndRenderData();
+                return;
+            }
+
             try {
-                const response = await fetch(`${sheetCsvUrl}&_ts=${Date.now()}`);
+                // 5분이 지났거나 첫 방문일 때만 새 데이터 로드
+                const response = await fetch(`${sheetCsvUrl}&_ts=${now}`);
+                if (!response.ok) throw new Error("Network response was not ok");
+                
                 const csvText = await response.text();
                 rawMapData = parseCSV(csvText);
+
+                // 로컬 스토리지에 캐시 저장
+                localStorage.setItem(cacheKey, JSON.stringify(rawMapData));
+                localStorage.setItem(cacheTimeKey, now.toString());
+
                 filterAndRenderData();
             } catch (error) {
                 console.error(error);
-                document.getElementById('mapList').innerHTML = '<div class="loading-text" style="color:#ef4444;">시트 데이터를 불러오지 못했습니다.</div>';
+                // 네트워크 에러 시 이전 캐시라도 표출
+                if (cachedData) {
+                    rawMapData = JSON.parse(cachedData);
+                    filterAndRenderData();
+                } else {
+                    document.getElementById('mapList').innerHTML = '<div class="loading-text" style="color:#ef4444;">데이터를 불러오지 못했습니다. 네트워크를 확인해 주세요.</div>';
+                }
             }
         }
 
