@@ -16,10 +16,12 @@
       --bg-color: #11141a;
       --panel-bg: #181d26;
       --accent-color: #3b82f6;
+      --accent-orange: #fb923c;
       --text-color: #e2e8f0;
       --text-muted: #94a3b8;
       --border-color: #242b38;
-      --changelog-width: 340px;
+      --changelog-width: 360px;
+      --items-per-page: 8;
     }
 
     html { background-color: #11141a; }
@@ -55,7 +57,7 @@
 
     .main-layout {
       display: flex; gap: 25px;
-      max-width: 1380px; margin: 25px auto; padding: 0 20px;
+      max-width: 1400px; margin: 25px auto; padding: 0 20px;
     }
     .content-area { flex: 1; min-width: 0; }
 
@@ -68,29 +70,56 @@
       height: fit-content; position: sticky; top: 20px;
     }
     .changelog-title {
-      font-size: 18px; font-weight: bold; color: var(--accent-color);
+      font-size: 20px; font-weight: bold; color: var(--accent-color);
       margin: 0 0 18px 0; padding-bottom: 12px;
       border-bottom: 1px solid var(--border-color);
     }
     .changelog-loading {
-      color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px 0;
+      color: var(--text-muted); font-size: 14px; text-align: center; padding: 30px 0;
     }
     .changelog-date {
-      font-size: 15px; font-weight: bold; color: #fb923c;
-      margin: 18px 0 10px 0;
+      font-size: 15px; font-weight: bold; color: var(--accent-orange);
+      margin: 20px 0 10px 0;
     }
     .changelog-date:first-child { margin-top: 0; }
     .changelog-item {
       font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: #ddd;
     }
     .changelog-level {
-      font-weight: bold; color: #fff;
+      font-weight: bold; color: #fff; background: #2a2f3d;
+      padding: 2px 8px; border-radius: 4px; margin: 0 4px;
     }
     .changelog-rank {
       font-weight: bold; color: #7dd3fc;
     }
-    .changelog-arrow { color: #ef4444; margin: 0 4px; }
-    .changelog-divider { color: #666; margin: 0 4px; }
+    .changelog-above { color: #ccc; margin: 0 4px; }
+    .changelog-map { font-weight: 500; color: #fff; }
+
+    /* === 페이지네이션 === */
+    .pagination {
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+      margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);
+    }
+    .page-btn {
+      background: #11141a; border: 1px solid var(--border-color);
+      color: var(--text-color); min-width: 36px; height: 36px;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+      transition: all 0.2s;
+    }
+    .page-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .page-btn.active {
+      background: var(--accent-orange); border-color: var(--accent-orange);
+      color: #fff; font-weight: bold;
+    }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-input-wrap {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .page-input {
+      width: 50px; height: 36px; background: #11141a;
+      border: 1px solid var(--border-color); border-radius: 6px;
+      color: #fff; text-align: center; font-size: 14px; outline: none;
+    }
 
     .control-panel {
       background-color: var(--panel-bg); border: 1px solid var(--border-color);
@@ -228,6 +257,7 @@
       <div id="changelogContent">
         <div class="changelog-loading">업데이트 내역 불러오는 중...</div>
       </div>
+      <div class="pagination" id="pagination"></div>
     </div>
   </div>
 
@@ -242,13 +272,15 @@
   <div class="toast" id="toast">주소가 복사되었습니다!</div>
 
   <script>
-    // === 시트 URL ===
-    // ⚠️ 본인의 공개 CSV URL로 교체하세요!
+    // === 시트 URL — 본인 환경에 맞게 수정 ===
     const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
-    // ChangeLog 탭 별도 호출 (gid= 해당 탭 번호로 교체)
     const changelogCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?gid=318273456&output=csv";
 
+    const ITEMS_PER_PAGE = 8; // 한 페이지에 보여줄 항목 개수
     let rawMapData = [];
+    let changelogRows = [];
+    let currentPage = 1;
+    let totalPages = 1;
     let currentSortMode = 'rank';
 
     // === 유틸 ===
@@ -273,44 +305,126 @@
     }
 
     // === 채인지로그 렌더링 ===
-    function renderChangelog(rows) {
+    function renderChangelogPage(page) {
       const container = document.getElementById('changelogContent');
-      if (!rows || rows.length === 0) {
+      if (!changelogRows.length) {
         container.innerHTML = '<div class="changelog-loading">내역이 없습니다.</div>';
+        document.getElementById('pagination').innerHTML = '';
         return;
       }
 
-      // 날짜별 그룹화
-      const groups = {};
-      rows.forEach(row => {
-        const date = row.Date?.trim() || "";
-        if (!date) return;
-        if (!groups[date]) groups[date] = [];
-        groups[date].push(row);
-      });
+      totalPages = Math.ceil(changelogRows.length / ITEMS_PER_PAGE);
+      if (page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      currentPage = page;
+
+      const startIdx = (page - 1) * ITEMS_PER_PAGE;
+      const endIdx = startIdx + ITEMS_PER_PAGE;
+      const pageRows = changelogRows.slice(startIdx, endIdx);
 
       let html = "";
-      for (const date of Object.keys(groups).reverse()) {
-        html += `<div class="changelog-date">${date}.</div>`;
-        groups[date].forEach(row => {
-          const level = row.Level?.trim() || "Unknown";
-          const placed = row.Placed?.trim();     // C열: 단순 배치
-          const before = row.before?.trim();     // D열: 이전 순위
-          const after = row.after?.trim();       // E열: 새로운 순위
+      let lastDate = "";
+      pageRows.forEach(row => {
+        const date = row.Date?.trim() || "";
+        const level = row.Level?.trim() || "Unknown";
+        const placed = row.Placed?.trim();
+        const before = row.before?.trim();
+        const after = row.after?.trim();
+        const above = row.above?.trim();
+        const below = row.below?.trim();
 
-          if (placed) {
-            // 단순 배치: "Tidal Wave placed at #13"
-            html += `<div class="changelog-item">• <span class="changelog-level">${level}</span> placed at <span class="changelog-rank">#${placed}</span></div>`;
-          } else if (before && after) {
-            // 이동: "Aperture was raised/lowered from #1 → #8"
-            const bNum = parseInt(before, 10);
-            const aNum = parseInt(after, 10);
-            const dir = aNum < bNum ? "raised" : "lowered";
-            html += `<div class="changelog-item">• <span class="changelog-level">${level}</span> was ${dir} from <span class="changelog-rank">#${before}</span><span class="changelog-arrow">→</span><span class="changelog-rank">#${after}</span></div>`;
-          }
-        });
-      }
+        if (date && date !== lastDate) {
+          html += `<div class="changelog-date">${date}.</div>`;
+          lastDate = date;
+        }
+
+        if (placed) {
+          html += `<div class="changelog-item">• <span class="changelog-level">${level}</span> placed at <span class="changelog-rank">#${placed}</span>`;
+          if (above) html += ` <span class="changelog-above">above</span> <span class="changelog-map">${above}</span>`;
+          if (below) html += ` <span class="changelog-above">and below</span> <span class="changelog-map">${below}</span>`;
+          html += `</div>`;
+        } else if (before && after) {
+          const bNum = parseInt(before, 10);
+          const aNum = parseInt(after, 10);
+          const dir = aNum < bNum ? "raised" : "lowered";
+          html += `<div class="changelog-item">• <span class="changelog-level">${level}</span> was ${dir} from <span class="changelog-rank">#${before}</span> to <span class="changelog-rank">#${after}</span>`;
+          if (above) html += ` <span class="changelog-above">above</span> <span class="changelog-map">${above}</span>`;
+          if (below) html += ` <span class="changelog-above">and below</span> <span class="changelog-map">${below}</span>`;
+          html += `</div>`;
+        }
+      });
+
       container.innerHTML = html;
+      renderPagination();
+    }
+
+    // === 페이지네이션 ===
+    function renderPagination() {
+      const pager = document.getElementById('pagination');
+      if (totalPages <= 1) {
+        pager.innerHTML = '';
+        return;
+      }
+
+      let pagerHtml = "";
+      // 이전
+      pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`;
+
+      // 페이지 번호
+      const maxVisible = 3;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      if (startPage > 1) {
+        pagerHtml += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+          pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pagerHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
+        }
+        pagerHtml += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      // 다음
+      pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
+
+      pager.innerHTML = pagerHtml;
+    }
+
+    function goToPage(page) {
+      renderChangelogPage(page);
+    }
+
+    function showPageInput() {
+      const pager = document.getElementById('pagination');
+      pager.innerHTML = `
+        <div class="page-input-wrap">
+          <input type="number" class="page-input" id="pageInput" min="1" max="${totalPages}" placeholder="${currentPage}">
+          <button class="page-btn" onclick="jumpToPage()">이동</button>
+          <button class="page-btn" onclick="renderChangelogPage(currentPage)">취소</button>
+        </div>
+      `;
+      document.getElementById('pageInput').focus();
+    }
+
+    function jumpToPage() {
+      const val = parseInt(document.getElementById('pageInput').value, 10);
+      if (!isNaN(val) && val >= 1 && val <= totalPages) {
+        goToPage(val);
+      } else {
+        showPageInput(); // 잘못된 값이면 다시 입력창
+      }
     }
 
     // === 데이터 불러오기 ===
@@ -318,8 +432,14 @@
       try {
         const res = await fetch(`${changelogCsvUrl}&_t=${Date.now()}`);
         if (!res.ok) throw new Error("changelog fetch failed");
-        const data = parseCSV(await res.text());
-        renderChangelog(data);
+        // 날짜 내림차순으로 정렬
+        changelogRows = parseCSV(await res.text()).filter(r => r.Date && r.Level);
+        changelogRows.sort((a, b) => {
+          const da = (a.Date || "").trim();
+          const db = (b.Date || "").trim();
+          return db.localeCompare(da);
+        });
+        renderChangelogPage(1);
       } catch (err) {
         console.error(err);
         document.getElementById('changelogContent').innerHTML =
