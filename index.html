@@ -3,169 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GD Quality Level List</title>
+    
+    <meta name="google-site-verification" content="rpnE6jyQRrMHiu6hUZwKHoFyUbrr3xN0BpoZedmqbGo" />
+    <title>GD Quality Level List - 지메 퀄리티 리스트</title>
+    <meta name="description" content="지오메트리 대시 최고 퀄리티 레벨 순위표! 실시간으로 업데이트되는 GD Quality Level List를 확인해 보세요.">
+    <meta name="keywords" content="지메, 지오메트리대시, 지메 퀄리티 리스트, 퀄리티 리스트, GD, Geometry Dash, Quality List">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="GD Quality Level List">
+    <meta property="og:description" content="지오메트리 대시 최고 퀄리티 레벨 순위표!">
     <style>
         :root {
-            --bg: #11141a; --panel: #181d26; --accent: #3b82f6;
-            --text: #e2e8f0; --muted: #94a3b8; --border: #242b38;
-            --up: #4ade80; --down: #f87171; --new: #facc15;
+            --bg-color: #11141a;
+            --panel-bg: #181d26;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #242b38;
+            --log-bg: #1a1f2b;
+            --log-border: #2a3242;
+            --rank-up: #4ade80;
+            --rank-down: #f87171;
+            --rank-new: #facc15;
         }
-        * {box-sizing:border-box;margin:0;padding:0;}
-        body {font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
-        header {background:var(--panel);padding:16px 30px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-        h1 {font-size:22px;color:var(--accent);letter-spacing:1px;}
-        .wrap {display:flex;gap:20px;max-width:1300px;margin:20px auto;padding:0 20px;}
-        .main {flex:1;min-width:0;}
-        .side {width:320px;background:#1a1f2b;border:1px solid #2a3242;border-radius:12px;padding:16px;max-height:85vh;overflow-y:auto;}
-        .side h3 {font-size:15px;color:var(--accent);padding-bottom:10px;border-bottom:1px solid #2a3242;margin-bottom:12px;position:sticky;top:0;background:#1a1f2b;}
-        .top-bar {display:flex;gap:10px;margin-bottom:16px;}
-        .search {flex:1;}
-        .search input {width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;}
-        .search input:focus {border-color:var(--accent);}
-        .btn {padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#2a3242;color:#cbd5e1;}
-        .btn.prim {background:var(--accent);color:#fff;}
-        .list {background:var(--panel);border-radius:12px;border:1px solid var(--border);overflow:hidden;}
-        .item {display:flex;align-items:center;gap:20px;padding:16px 24px;border-bottom:1px solid var(--border);}
-        .item:last-child {border-bottom:none;}
-        .item:hover {background:#1f2533;}
-        .rank {font-size:22px;font-weight:bold;width:50px;color:var(--accent);text-align:center;flex-shrink:0;}
-        .thumb {width:140px;height:78px;border-radius:6px;background:#000;overflow:hidden;flex-shrink:0;border:1px solid #2e3848;}
-        .thumb img {width:100%;height:100%;object-fit:cover;}
-        .info {flex:1;min-width:0;}
-        .mname {font-size:18px;font-weight:bold;margin-bottom:4px;}
-        .meta {font-size:12.5px;color:var(--muted);display:flex;gap:14px;}
-        .log-item {font-size:12.5px;padding:8px 0;border-bottom:1px solid #252d3d;line-height:1.5;}
-        .log-date {color:var(--muted);font-size:11px;margin-bottom:2px;}
-        .up {color:var(--up);} .down {color:var(--down);} .new {color:var(--new);}
-        .empty {color:var(--muted);font-size:13px;text-align:center;padding:20px;}
-        @media(max-width:900px){.wrap{flex-direction:column;padding:0 12px;margin:12px auto;}.side{width:100%;max-height:250px;}}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { background-color: #11141a; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 16px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 22px;
+            color: var(--accent-color);
+            letter-spacing: 1px;
+        }
+        .sync-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .page-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 1300px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .main-content { flex: 1; min-width: 0; }
+        .changelog-sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            background-color: var(--log-bg);
+            border: 1px solid var(--log-border);
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .changelog-sidebar h3 {
+            margin: 0 0 14px 0;
+            font-size: 15px;
+            color: var(--accent-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--log-border);
+            position: sticky;
+            top: 0;
+            background: var(--log-bg);
+        }
+
+        .control-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-box { flex: 1; }
+        .search-box input {
+            width: 100%;
+            background-color: #11141a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-color);
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box input:focus { border-color: var(--accent-color); }
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #2a3242;
+            color: #cbd5e1;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #384152; }
+        .btn-primary { background: var(--accent-color); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .list-section {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:hover { background: #1f2533; }
+
+        .rank-num {
+            font-size: 22px;
+            font-weight: bold;
+            width: 50px;
+            color: var(--accent-color);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .map-thumb {
+            width: 140px;
+            height: 78px;
+            border-radius: 6px;
+            background: #000;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid #2e3848;
+        }
+        .map-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .map-info { flex: 1; min-width: 0; }
+        .map-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .map-meta {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 14px;
+        }
+
+        .changelog-item {
+            font-size: 12.5px;
+            padding: 8px 0;
+            border-bottom: 1px solid #252d3d;
+            line-height: 1.5;
+        }
+        .changelog-item:last-child { border-bottom: none; }
+        .changelog-date { color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
+        .rank-up { color: var(--rank-up); }
+        .rank-down { color: var(--rank-down); }
+        .rank-new { color: var(--rank-new); }
+        .changelog-empty { color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px; }
+
+        @media (max-width: 900px) {
+            .page-wrapper { flex-direction: column; padding: 0 12px; margin: 12px auto; }
+            .changelog-sidebar { width: 100%; max-height: 250px; }
+        }
+        @media (max-width: 600px) {
+            header { padding: 12px 16px; }
+            header h1 { font-size: 17px; }
+            .rank-num { width: 35px; font-size: 17px; }
+            .map-thumb { width: 100px; height: 56px; }
+            .map-name { font-size: 15px; }
+            .list-item { padding: 12px 14px; gap: 10px; }
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>GD QUALITY LEVEL LIST</h1>
-    <span style="font-size:12px;color:var(--muted);">시트에서 동기화됨</span>
-</header>
+    <header>
+        <h1>GD QUALITY LEVEL LIST</h1>
+        <div class="sync-status"><span class="sync-dot"></span> 시트에서 동기화됨</div>
+    </header>
 
-<div class="wrap">
-    <div class="main">
-        <div class="top-bar">
-            <div class="search"><input type="text" id="q" placeholder="맵 이름으로 검색..."></div>
-            <button class="btn prim" onclick="load()">🔄 새로고침</button>
-        </div>
-        <div class="list" id="list"><div style="padding:40px;text-align:center;color:var(--muted);">불러오는 중...</div></div>
+    <div class="page-wrapper">
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="맵 이름으로 검색...">
+                </div>
+                <button class="btn btn-primary" onclick="loadData()">🔄 새로고침</button>
+            </div>
+            <div class="list-section" id="mapList">
+                <div style="padding:40px;text-align:center;color:var(--text-muted);">불러오는 중...</div>
+            </div>
+        </main>
+
+        <aside class="changelog-sidebar">
+            <h3>📋 최근 순위 변경</h3>
+            <div id="changelogList">
+                <div class="changelog-empty">불러오는 중...</div>
+            </div>
+        </aside>
     </div>
-    <div class="side">
-        <h3>📋 최근 변경 로그</h3>
-        <div id="log"><div class="empty">불러오는 중...</div></div>
-    </div>
-</div>
 
-<script>
-// ==================================================
-// ← 여기에 시트 ID를 넣으세요! ←
-// ==================================================
-const SHEET_ID = "1BNnjPO04NBhMakagGKkAdrvJxSi2LkxDk-I8mo78lkd";
-const MAPS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Ranking`;
-const LOG_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Changelog`;
+    <script>
+        // =====================================================
+        // 📌 구글 시트 설정 - 시트 ID를 입력하세요!
+        // =====================================================
+        const SHEET_ID = "여기에_시트_ID를_넣으세요";
+        const MAPS_SHEET_NAME = "Ranking";
+        const LOG_SHEET_NAME = "Changelog";
 
-let maps = [], logs = [];
+        const MAPS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MAPS_SHEET_NAME)}`;
+        const LOG_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(LOG_SHEET_NAME)}`;
 
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-  const headers = parseLine(lines[0]);
-  const res = [];
-  for (let i=1; i<lines.length; i++) {
-    const vals = parseLine(lines[i]);
-    const row = {};
-    headers.forEach((h, idx) => row[h.trim().toLowerCase()] = vals[idx]||"");
-    res.push(row);
-  }
-  return res;
-}
-function parseLine(line) {
-  const r=[],c='',q=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch==='"'){q&&line[i+1]==='"'?(c+='"',i++):(q=!q);}
-    else if(ch===','&&!q){r.push(c.trim());c='';}
-    else c+=ch;
-  }
-  r.push(c.trim());return r;
-}
-function getVid(url){
-  if(!url)return'';
-  let m;
-  if((m=url.match(/youtu\.be\/([\w-]+)/)))return m[1];
-  if((m=url.match(/v=([\w-]+)/)))return m[1];
-  if((m=url.match(/youtube\.com\/embed\/([\w-]+)/)))return m[1];
-  return'';
-}
-function thumb(url){return url?`https://img.youtube.com/vi/${url}/hqdefault.jpg`:'';}
-function rateColor(r){
-  const x=(r||'').toLowerCase();
-  if(x.includes('mythic'))return'#7dd3fc';
-  if(x.includes('legendary'))return'#f472b6';
-  if(x.includes('epic'))return'#ef4444';
-  if(x.includes('featured'))return'#fb923c';
-  if(x.includes('rated'))return'#94a3b8';
-  return'#475569';
-}
+        let allMaps = [];
+        let changeLogs = [];
 
-async function load(){
-  try{
-    const [mRes,lRes]=await Promise.all([fetch(MAPS_URL),fetch(LOG_URL)]);
-    maps=parseCSV(await mRes.text()).filter(m=>m.name);
-    logs=parseCSV(await lRes.text());
-    render(); renderLog();
-  }catch(e){
-    console.error(e);
-    document.getElementById('list').innerHTML='<div style="padding:40px;text-align:center;color:#f87171;">불러오기 실패<br>시트 공개 설정 확인</div>';
-    document.getElementById('log').innerHTML='<div class="empty">로그를 불러올 수 없습니다.</div>';
-  }
-}
-function render(filter=''){
-  const kw=filter.toLowerCase().trim();
-  const list=kw?maps.filter(m=>m.name.toLowerCase().includes(kw)||(m.publisher||'').toLowerCase().includes(kw)):maps;
-  document.getElementById('list').innerHTML=list.length?list.map((m,i)=>{
-    const r=parseInt(m.rank||i+1,10);
-    const v=getVid(m.videourl||m.video||'');
-    const c=rateColor(m.rating);
-    return `<div class="item">
-      <div class="rank">#${r}</div>
-      <div class="thumb">${v?`<img src="${thumb(v)}" loading="lazy">`:''}</div>
-      <div class="info">
-        <div class="mname">${m.name}</div>
-        <div class="meta">
-          <span>👤 ${m.publisher||'알 수 없음'}</span>
-          <span>📦 ${m.objects||'-'}</span>
-          <span style="color:${c};">⭐ ${m.rating||'없음'}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join(''):'<div style="padding:40px;text-align:center;color:var(--muted);">맵이 없습니다.</div>';
-}
-function renderLog(){
-  if(!logs.length){document.getElementById('log').innerHTML='<div class="empty">변경 기록이 없습니다.</div>';return;}
-  const sorted=[...logs].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  document.getElementById('log').innerHTML=sorted.slice(0,50).map(l=>{
-    const d=l.date||'',n=l.name||'',t=l.type||'',o=l.oldrank||'',nw=l.newrank||'';
-    let ic='',cls='',desc='';
-    if(t==='추가'){ic='🆕';cls='new';desc='신규 진입';}
-    else if(t==='삭제'){ic='🗑️';cls='down';desc='순위에서 제거됨';}
-    else{
-      const op=parseInt(o),np=parseInt(nw);
-      if(np<op){ic=`▲${op-np}`;cls='up';}
-      else{ic=`▼${np-op}`;cls='down';}
-      desc=`#${o} → #${nw}`;
-    }
-    return `<div class="log-item"><div class="log-date">${d}</div><div><strong>${n}</strong> <span class="${cls}">${ic}</span> ${desc}</div></div>`;
-  }).join('');
-}
-document.getElementById('q').addEventListener('input',e=>render(e.target.value));
-load();
-</script>
+        // 유튜브 영상 ID 추출
+        function extractVideoId(url) {
+            if (!url) return '';
+            let m;
+            if ((m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/))) return m[1];
+            if ((m = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/))) return m[1];
+            if ((m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/))) return m[1];
+            return '';
+        }
+
+        // 썸네일 URL
+        function getThumbUrl(videoId) {
+            return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+        }
+
+        // 등급별 색상
+        function getRatingColor(rating) {
+            if (!rating) return '#94a3b8';
+            const r = rating.toLowerCase().trim();
+            if (r.includes('mythic')) return '#7dd3fc';
+            if (r.includes('legendary')) return '#f472b6';
+            if (r.includes('epic')) return '#ef4444';
+            if (r.includes('featured')) return '#fb923c';
+            if (r.includes('rated')) return '#94a3b8';
+            if (r.includes('unrated')) return '#475569';
+            return '#94a3b8';
+        }
+
+        // CSV 파서
+        function parseCSV(text) {
+            const lines = text.trim().split(/\r?\n/);
+            if (lines.length < 2) return [];
+            const headers = parseCSVLine(lines[0]);
+            const result = [];
+            for (let i = 1; i < lines.length; i++) {
+                const vals = parseCSVLine(lines[i]);
+                const row = {};
+                headers.forEach((h, idx) => {
+                    row[h.trim().toLowerCase()] = vals[idx] || '';
+                });
+                result.push(row);
+            }
+            return result;
+        }
+
+        // CSV 한 줄 파싱
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuote = false;
+            for (let i = 0; i < line.length; i++) {
+                const c = line[i];
+                if (c === '"') {
+                    if (inQuote && line[i+1] === '"') {
+                        current += '"'; i++;
+                    } else {
+                        inQuote = !inQuote;
+                    }
+                } else if (c === ',' && !inQuote) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += c;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        // 데이터 불러오기
+        async function loadData() {
+            try {
+                const mapRes = await fetch(MAPS_CSV_URL);
+                const mapText = await mapRes.text();
+                allMaps = parseCSV(mapText);
+
+                // 순위 기준 정렬
+                allMaps.sort((a, b) => {
+                    const rA = parseInt(a.rank || '9999', 10);
+                    const rB = parseInt(b.rank || '9999', 10);
+                    return rA - rB;
+                });
+
+                // 변경로그 불러오기
+                const logRes = await fetch(LOG_CSV_URL);
+                const logText = await logRes.text();
+                changeLogs = parseCSV(logText);
+
+                renderList();
+                renderChangelog();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('mapList').innerHTML = 
+                    '<div style="padding:40px;text-align:center;color:#f87171;">불러오기 실패<br>시트 공개 설정을 확인해 주세요.</div>';
+                document.getElementById('changelogList').innerHTML = 
+                    '<div class="changelog-empty">로그를 불러올 수 없습니다.</div>';
+            }
+        }
+
+        // 목록 렌더링
+        function renderList(filter = '') {
+            const container = document.getElementById('mapList');
+            const kw = filter.toLowerCase().trim();
+            let list = allMaps;
+            if (kw) {
+                list = allMaps.filter(m => 
+                    (m.name || '').toLowerCase().includes(kw) || 
+                    (m.publisher || m.author || '').toLowerCase().includes(kw)
+                );
+            }
+            if (!list.length) {
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">맵이 없습니다.</div>';
+                return;
+            }
+            container.innerHTML = list.map((map, idx) => {
+                const rankNum = parseInt(map.rank || (idx + 1), 10);
+                const videoId = extractVideoId(map.videourl || map.video || '');
+                const thumb = getThumbUrl(videoId);
+                const color = getRatingColor(map.rating || '');
+                return `
+                    <div class="list-item">
+                        <div class="rank-num">#${rankNum}</div>
+                        <div class="map-thumb">${thumb ? `<img src="${thumb}" loading="lazy">` : ''}</div>
+                        <div class="map-info">
+                            <div class="map-name">${map.name || '이름 없음'}</div>
+                            <div class="map-meta">
+                                <span>👤 ${map.publisher || map.author || '알 수 없음'}</span>
+                                <span>📦 ${map.objects || '-'}</span>
+                                <span style="color:${color};">⭐ ${map.rating || '없음'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 변경로그 렌더링
+        function renderChangelog() {
+            const container = document.getElementById('changelogList');
+            if (!changeLogs.length) {
+                container.innerHTML = '<div class="changelog-empty">변경 기록이 없습니다.</div>';
+                return;
+            }
+            const sortedLogs = [...changeLogs].sort((a, b) => {
+                const dA = a.date || '';
+                const dB = b.date || '';
+                return dB.localeCompare(dA);
+            });
+            container.innerHTML = sortedLogs.map(log => {
+                const date = log.date || '';
+                const name = log.name || '';
+                const type = log.type || '';
+                const oldRank = log.oldrank || '';
+                const newRank = log.newrank || '';
+
+                let icon = '', cls = '', desc = '';
+                if (type === '추가' || type === '신규') {
+                    icon = '🆕'; cls = 'rank-new'; desc = '신규 진입';
+                } else if (type === '삭제') {
+                    icon = '🗑️'; cls = 'rank-down'; desc = '제거됨';
+                } else {
+                    const op = parseInt(oldRank), np = parseInt(newRank);
+                    if (!isNaN(op) && !isNaN(np)) {
+                        if (np < op) { icon = `▲${op - np}`; cls = 'rank-up'; }
+                        else { icon = `▼${np - op}`; cls = 'rank-down'; }
+                        desc = `#${oldRank} → #${newRank}`;
+                    } else {
+                        desc = `#${newRank}`;
+                    }
+                }
+
+                return `
+                    <div class="changelog-item">
+                        <div class="changelog-date">${date}</div>
+                        <div><strong>${name}</strong> <span class="${cls}">${icon}</span> ${desc}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 검색
+        document.getElementById('searchInput').addEventListener('input', e => {
+            renderList(e.target.value);
+        });
+
+        // 초기 로드
+        loadData();
+    </script>
 </body>
 </html>
