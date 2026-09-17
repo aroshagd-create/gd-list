@@ -19,6 +19,7 @@
       --text-color: #e2e8f0;
       --text-muted: #94a3b8;
       --border-color: #242b38;
+      --changelog-width: 320px; /* 채인지로그 너비 */
     }
 
     html {
@@ -31,7 +32,6 @@
       color: var(--text-color);
       margin: 0;
       padding: 0;
-      /* 🚫 모바일 전체 텍스트 꾹 누름/드래그 방지 */
       -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
@@ -69,10 +69,45 @@
       transform: scale(0.98);
     }
 
-    .container {
-      max-width: 1000px;
+    /* === 메인 레이아웃: 왼쪽 리스트 + 오른쪽 채인지로그 === */
+    .main-layout {
+      display: flex;
+      gap: 25px;
+      max-width: 1350px;
       margin: 25px auto;
       padding: 0 20px;
+    }
+
+    .content-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .changelog-panel {
+      width: var(--changelog-width);
+      flex-shrink: 0;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .changelog-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin: 0 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .changelog-placeholder {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .control-panel {
@@ -259,7 +294,7 @@
       font-size: 17px;
     }
 
-    /* 📱 모달 팝업 */
+    /* 모달 팝업 */
     .action-modal-overlay {
       position: fixed;
       top: 0;
@@ -347,10 +382,19 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    @media (max-width: 600px) {
+    /* 모바일 */
+    @media (max-width: 900px) {
+      .main-layout {
+        flex-direction: column;
+        padding: 0 10px;
+        margin: 15px auto;
+      }
+      .changelog-panel {
+        width: 100%;
+        position: static;
+      }
       header { padding: 14px 18px; }
       header h1 { font-size: 16px; }
-      .container { padding: 0 10px; margin: 15px auto; }
       .control-panel { padding: 8px 10px; gap: 8px; }
       .search-box input { padding: 8px 10px; font-size: 12px; }
       .btn { padding: 8px 10px; font-size: 11px; }
@@ -372,21 +416,38 @@
     <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
   </header>
 
-  <div class="container">
-    <div class="control-panel">
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="검색..." oninput="filterAndRenderData()">
+  <!-- === 메인 레이아웃 시작 === -->
+  <div class="main-layout">
+    <!-- 왼쪽: 기존 리스트 영역 -->
+    <div class="content-area">
+      <div class="control-panel">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="검색..." oninput="filterAndRenderData()">
+        </div>
+        <div class="filter-buttons">
+          <button class="btn active" id="btnRank"    onclick="changeSortMode('rank')">순위순</button>
+          <button class="btn"        id="btnObjects" onclick="changeSortMode('objects')">오브젝트순</button>
+        </div>
       </div>
-      <div class="filter-buttons">
-        <button class="btn active" id="btnRank"    onclick="changeSortMode('rank')">순위순</button>
-        <button class="btn"        id="btnObjects" onclick="changeSortMode('objects')">오브젝트순</button>
+
+      <div class="list-section" id="mapList">
+        <div class="loading-text">구글 스프레드시트에서 실시간 순위표를 불러오는 중...</div>
       </div>
     </div>
 
-    <div class="list-section" id="mapList">
-      <div class="loading-text">구글 스프레드시트에서 실시간 순위표를 불러오는 중...</div>
+    <!-- 오른쪽: 채인지로그 영역 -->
+    <div class="changelog-panel">
+      <h2 class="changelog-title">📋 CHANGELOG</h2>
+      <div class="changelog-placeholder">
+        <!-- 여기에 나중에 채인지로그 내용 넣으면 됨 -->
+        업데이트 내역이 표시됩니다.<br><br>
+        예시:<br>
+        • 2026-09-18 초기 레이아웃 적용<br>
+        • 이후 내용 추가 예정
+      </div>
     </div>
   </div>
+  <!-- === 메인 레이아웃 끝 === -->
 
   <div class="action-modal-overlay" id="actionModal" onclick="closeModal()">
     <div class="action-modal" onclick="event.stopPropagation()">
@@ -409,7 +470,7 @@
     let rawMapData = [];
     let currentSortMode = 'rank';
 
-    /* 👑 헤더 타이틀 클릭 & 꾹 누르기 이벤트 */
+    /* 헤더 타이틀 클릭 & 꾹 누르기 이벤트 */
     const headerTitle = document.getElementById('headerTitle');
     let pressTimer = null;
     let isLongPress = false;
@@ -456,9 +517,7 @@
             text: '지오메트리 대시 최고 퀄리티 레벨 순위표!',
             url: window.location.href
           });
-        } catch (err) {
-          // 공유 취소/실패 시 무시
-        }
+        } catch (err) {}
       } else {
         copySiteUrl();
       }
@@ -467,37 +526,27 @@
     function copySiteUrl() {
       closeModal();
       navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          showToast("사이트 주소가 복사되었습니다!");
-        })
-        .catch(() => {
-          showToast("복사에 실패했습니다.");
-        });
+        .then(() => showToast("사이트 주소가 복사되었습니다!"))
+        .catch(() => showToast("복사에 실패했습니다."));
     }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.innerText = msg;
       toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 2000);
+      setTimeout(() => toast.style.display = 'none', 2000);
     }
 
-    /* 🛡️ CSV 파싱 알고리즘 */
+    /* CSV 파싱 */
     function parseCSV(csvText) {
       const lines = csvText.split(/\r?\n/);
       if (lines.length === 0) return [];
-
       const headers = lines[0].split(",").map(h => h.trim());
       const result = [];
-
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
-
         const currentline = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         const obj = {};
-
         headers.forEach((header, index) => {
           let value = currentline[index] ? currentline[index].trim() : "";
           if (value.startsWith('"') && value.endsWith('"')) {
@@ -505,7 +554,6 @@
           }
           obj[header] = value;
         });
-
         result.push(obj);
       }
       return result;
@@ -514,15 +562,10 @@
     function getYoutubeThumbnail(url) {
       try {
         let videoId = '';
-        if (url.includes('youtu.be/')) {
-          videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
-        } else if (url.includes('youtube.com/embed/')) {
-          videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
-        } else if (url.includes('v=')) {
-          videoId = url.split('v=')[1].split('&')[0];
-        } else {
-          videoId = url;
-        }
+        if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+        else if (url.includes('youtube.com/embed/')) videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
+        else if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+        else videoId = url;
         return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       } catch (e) {
         return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="250" height="140" style="background:%23181d26;"></svg>';
@@ -545,7 +588,6 @@
       if (!objectsStr) return '#e2e8f0';
       const count = parseInt(objectsStr.replace(/[^0-9]/g, ''), 10);
       if (isNaN(count)) return '#e2e8f0';
-
       if (count >= 1000000) return '#ff0055';
       if (count >= 750000) return '#ff3300';
       if (count >= 500000) return '#ff7700';
@@ -569,7 +611,6 @@
       filterAndRenderData();
     }
 
-    /* 🚀 DocumentFragment 적용 (DOM 렌더링 최적화) */
     function filterAndRenderData() {
       const listContainer = document.getElementById('mapList');
       const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -581,17 +622,15 @@
       });
 
       if (currentSortMode === 'rank') {
-        filteredData.sort((a, b) => {
-          const aRank = parseInt((a.rank || '9999').replace(/[^0-9]/g, ''), 10);
-          const bRank = parseInt((b.rank || '9999').replace(/[^0-9]/g, ''), 10);
-          return aRank - bRank;
-        });
-      } else if (currentSortMode === 'objects') {
-        filteredData.sort((a, b) => {
-          const aObj = parseInt((a.objects || '0').replace(/[^0-9]/g, ''), 10);
-          const bObj = parseInt((b.objects || '0').replace(/[^0-9]/g, ''), 10);
-          return bObj - aObj;
-        });
+        filteredData.sort((a, b) =>
+          parseInt((a.rank || '9999').replace(/[^0-9]/g, ''), 10) -
+          parseInt((b.rank || '9999').replace(/[^0-9]/g, ''), 10)
+        );
+      } else {
+        filteredData.sort((a, b) =>
+          parseInt((b.objects || '0').replace(/[^0-9]/g, ''), 10) -
+          parseInt((a.objects || '0').replace(/[^0-9]/g, ''), 10)
+        );
       }
 
       if (filteredData.length === 0) {
@@ -600,15 +639,12 @@
       }
 
       const fragment = document.createDocumentFragment();
-
       filteredData.forEach((map) => {
         const item = document.createElement('div');
         item.className = 'list-item';
-
         const thumbUrl = getYoutubeThumbnail(map.videoUrl || "");
         const rColor = getRatingColor(map.rating);
         const oColor = getObjectsColor(map.objects);
-
         item.innerHTML = `
           <div class="item-main-row">
             <div class="rank">#${map.rank || '-'}</div>
@@ -632,30 +668,25 @@
               <div>
                 <div class="info-label">RATING</div>
                 <div class="info-value" style="color: ${rColor};">${map.rating || 'None'}</div>
-              </div
+              </div>
             </div>
           </div>
         `;
         fragment.appendChild(item);
       });
-
       listContainer.innerHTML = '';
       listContainer.appendChild(fragment);
     }
 
-    /* 🚀 이벤트 위임 (Event Delegation) */
     document.getElementById('mapList').addEventListener('click', (e) => {
-      const target = e.target;
-
-      const thumbBtn = target.closest('.list-thumbnail');
+      const thumbBtn = e.target.closest('.list-thumbnail');
       if (thumbBtn) {
         e.stopPropagation();
         const videoUrl = thumbBtn.getAttribute('data-video');
         if (videoUrl) window.open(videoUrl, '_blank');
         return;
       }
-
-      const infoBtn = target.closest('.map-info-click-area');
+      const infoBtn = e.target.closest('.map-info-click-area');
       if (infoBtn) {
         const listItem = infoBtn.closest('.list-item');
         const isActive = listItem.classList.contains('active');
@@ -664,12 +695,10 @@
       }
     });
 
-    /* 🚀 스마트 캐싱 (1분 캐시 적용) */
     async function loadSheetData() {
       const cacheKey = 'gd_list_data';
       const cacheTimeKey = 'gd_list_time';
-      const cacheDuration = 1 * 60 * 1000; // ⏱️ 1분 (60,000ms)
-
+      const cacheDuration = 1 * 60 * 1000;
       const cachedData = localStorage.getItem(cacheKey);
       const cachedTime = localStorage.getItem(cacheTimeKey);
       const now = Date.now();
@@ -683,13 +712,10 @@
       try {
         const response = await fetch(`${sheetCsvUrl}&_ts=${now}`);
         if (!response.ok) throw new Error("Network response was not ok");
-
         const csvText = await response.text();
         rawMapData = parseCSV(csvText);
-
         localStorage.setItem(cacheKey, JSON.stringify(rawMapData));
         localStorage.setItem(cacheTimeKey, now.toString());
-
         filterAndRenderData();
       } catch (error) {
         console.error(error);
