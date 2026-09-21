@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -55,13 +56,16 @@
     header h1:hover { opacity: 0.8; }
     header h1:active { transform: scale(0.98); }
 
+    /* === 모바일 전용 탭 바 === */
+    .mobile-tab-bar { display: none; }
+
     .main-layout {
       display: flex; gap: 25px;
       max-width: 1400px; margin: 25px auto; padding: 0 20px;
     }
     .content-area { flex: 1; min-width: 0; }
 
-    /* === 채인지로그 패널 === */
+    /* === 체인지로그 패널 === */
     .changelog-panel {
       width: var(--changelog-width); flex-shrink: 0;
       background-color: var(--panel-bg);
@@ -210,8 +214,32 @@
     }
 
     @media (max-width: 900px) {
+      /* === 모바일 탭 바 스타일 === */
+      .mobile-tab-bar {
+        display: flex; gap: 8px;
+        max-width: 1400px; margin: 15px auto 0 auto; padding: 0 10px;
+      }
+      .mobile-tab-btn {
+        flex: 1; padding: 12px;
+        background-color: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color); font-weight: bold; font-size: 14px;
+        border-radius: 8px; cursor: pointer; transition: all 0.2s;
+      }
+      .mobile-tab-btn.active {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: #fff;
+      }
+
+      /* === 탭 선택 숨김 클래스 === */
+      .content-area.mobile-hidden,
+      .changelog-panel.mobile-hidden {
+        display: none !important;
+      }
+
       .main-layout { flex-direction: column; padding: 0 10px; margin: 15px auto; }
-      .changelog-panel { width: 100%; position: static; }
+      .changelog-panel { width: 100%; position: static; box-sizing: border-box; }
       header { padding: 14px 18px; }
       header h1 { font-size: 16px; }
       .control-panel { padding: 8px 10px; gap: 8px; }
@@ -235,6 +263,12 @@
     <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
   </header>
 
+  <!-- 모바일 전용 탭 전환 버튼 -->
+  <div class="mobile-tab-bar">
+    <button class="mobile-tab-btn active" id="tabBtnList" onclick="switchMobileTab('list')">🏆 레벨 리스트</button>
+    <button class="mobile-tab-btn" id="tabBtnChangelog" onclick="switchMobileTab('changelog')">📋 체인지로그</button>
+  </div>
+
   <div class="main-layout">
     <div class="content-area">
       <div class="control-panel">
@@ -251,7 +285,7 @@
       </div>
     </div>
 
-    <!-- === 채인지로그 영역 === -->
+    <!-- === 체인지로그 영역 === -->
     <div class="changelog-panel">
       <h2 class="changelog-title">📋 CHANGELOG</h2>
       <div id="changelogContent">
@@ -283,6 +317,26 @@
     let totalPages = 1;
     let currentSortMode = 'rank';
 
+    // === 모바일 탭 전환 함수 ===
+    function switchMobileTab(tab) {
+      const contentArea = document.querySelector('.content-area');
+      const changelogPanel = document.querySelector('.changelog-panel');
+      const btnList = document.getElementById('tabBtnList');
+      const btnChangelog = document.getElementById('tabBtnChangelog');
+
+      if (tab === 'list') {
+        btnList.classList.add('active');
+        btnChangelog.classList.remove('active');
+        contentArea.classList.remove('mobile-hidden');
+        changelogPanel.classList.add('mobile-hidden');
+      } else {
+        btnChangelog.classList.add('active');
+        btnList.classList.remove('active');
+        contentArea.classList.add('mobile-hidden');
+        changelogPanel.classList.remove('mobile-hidden');
+      }
+    }
+
     // === 유틸 ===
     function parseCSV(csvText) {
       const lines = csvText.split(/\r?\n/);
@@ -304,7 +358,7 @@
       return result;
     }
 
-    // === 채인지로그 렌더링 ===
+    // === 체인지로그 렌더링 ===
     function renderChangelogPage(page) {
       const container = document.getElementById('changelogContent');
       if (!changelogRows.length) {
@@ -423,7 +477,7 @@
       if (!isNaN(val) && val >= 1 && val <= totalPages) {
         goToPage(val);
       } else {
-        showPageInput(); // 잘못된 값이면 다시 입력창
+        showPageInput();
       }
     }
 
@@ -432,7 +486,6 @@
       try {
         const res = await fetch(`${changelogCsvUrl}&_t=${Date.now()}`);
         if (!res.ok) throw new Error("changelog fetch failed");
-        // 날짜 내림차순으로 정렬
         changelogRows = parseCSV(await res.text()).filter(r => r.Date && r.Level);
         changelogRows.sort((a, b) => {
           const da = (a.Date || "").trim();
@@ -621,6 +674,12 @@
       }
       loadChangelog();
     }
+
+    // 페이지 진입 시 모바일 초기 상태 설정
+    if (window.innerWidth <= 900) {
+      document.querySelector('.changelog-panel').classList.add('mobile-hidden');
+    }
+
     loadMainData();
   </script>
 </body>
