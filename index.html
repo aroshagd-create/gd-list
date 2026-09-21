@@ -69,11 +69,23 @@
       border-radius: 10px; padding: 22px;
       height: fit-content; position: sticky; top: 20px;
     }
+    .changelog-header {
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; margin: 0 0 15px 0;
+    }
     .changelog-title {
       font-size: 20px; font-weight: bold; color: var(--accent-color);
-      margin: 0 0 18px 0; padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-color);
+      margin: 0; padding-bottom: 0; border-bottom: none;
     }
+    .changelog-toggle {
+      display: none; font-size: 18px; color: var(--accent-color);
+      transition: transform 0.3s;
+    }
+    .changelog-toggle.collapsed { transform: rotate(-90deg); }
+    .changelog-body {
+      overflow: hidden; transition: max-height 0.3s ease-out;
+    }
+    .changelog-body.collapsed { max-height: 0 !important; }
     .changelog-loading {
       color: var(--text-muted); font-size: 14px; text-align: center; padding: 30px 0;
     }
@@ -84,13 +96,15 @@
     .changelog-date:first-child { margin-top: 0; }
     .changelog-item {
       font-size: 14px; line-height: 1.7; margin-bottom: 8px; color: #ddd;
+      word-break: break-word;
     }
     .changelog-level {
       font-weight: bold; color: #fff; background: #2a2f3d;
       padding: 2px 8px; border-radius: 4px; margin: 0 4px;
+      display: inline-block;
     }
     .changelog-rank {
-      font-weight: bold; color: #7dd3fc;
+      font-weight: bold; color: #7dd3fc; white-space: nowrap;
     }
     .changelog-above { color: #ccc; margin: 0 4px; }
     .changelog-map { font-weight: 500; color: #fff; }
@@ -104,7 +118,7 @@
       background: #11141a; border: 1px solid var(--border-color);
       color: var(--text-color); min-width: 36px; height: 36px;
       border-radius: 6px; cursor: pointer; font-size: 14px;
-      transition: all 0.2s;
+      transition: all 0.2s; padding: 0 8px;
     }
     .page-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
     .page-btn.active {
@@ -209,23 +223,40 @@
       display: none; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
+    /* === 모바일 최적화 === */
     @media (max-width: 900px) {
-      .main-layout { flex-direction: column; padding: 0 10px; margin: 15px auto; }
-      .changelog-panel { width: 100%; position: static; }
-      header { padding: 14px 18px; }
-      header h1 { font-size: 16px; }
-      .control-panel { padding: 8px 10px; gap: 8px; }
-      .search-box input { padding: 8px 10px; font-size: 12px; }
-      .btn { padding: 8px 10px; font-size: 11px; }
-      .list-item { padding: 18px 12px; }
-      .item-main-row { gap: 14px; }
-      .rank { font-size: 18px; width: 32px; }
-      .list-thumbnail { width: 140px; height: 78px; }
-      .map-name { font-size: 18px; }
-      .map-info-click-area { padding: 10px 6px; }
-      .item-detail-box { padding: 12px; margin-top: 10px; }
-      .info-value { font-size: 13px; }
-      .info-label { font-size: 10px; }
+      :root { --changelog-width: 100%; }
+      header { padding: 14px 16px; }
+      header h1 { font-size: 18px; }
+      .main-layout { 
+        flex-direction: column; padding: 0 12px; margin: 15px auto; gap: 20px;
+      }
+      .changelog-panel { 
+        width: 100%; position: static; padding: 16px; margin-bottom: 10px;
+      }
+      .changelog-toggle { display: block; }
+      .changelog-body { max-height: 2000px; }
+      .changelog-title { font-size: 18px; }
+      .changelog-date { font-size: 14px; margin: 16px 0 8px 0; }
+      .changelog-item { font-size: 13px; line-height: 1.8; }
+      .changelog-level { font-size: 12px; padding: 1px 6px; margin: 0 3px; }
+      .pagination { gap: 8px; margin-top: 16px; padding-top: 12px; }
+      .page-btn { min-width: 44px; height: 44px; font-size: 15px; padding: 0 10px; }
+      .page-input { width: 60px; height: 44px; font-size: 16px; }
+      .control-panel { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+      .search-box { min-width: 180px; }
+      .search-box input { padding: 10px 12px; font-size: 15px; }
+      .btn { padding: 10px 14px; font-size: 14px; }
+      .list-item { padding: 20px 16px; }
+      .item-main-row { gap: 12px; flex-wrap: wrap; justify-content: center; text-align: center; }
+      .rank { font-size: 22px; width: 50px; }
+      .list-thumbnail { width: 100%; max-width: 300px; height: 120px; }
+      .map-info-click-area { width: 100%; justify-content: center; padding: 10px; }
+      .map-name { font-size: 22px; text-align: center; }
+      .item-detail-box { padding: 16px; margin-top: 16px; }
+      .info-grid { grid-template-columns: 1fr; gap: 12px; text-align: center; }
+      .info-value { font-size: 16px; }
+      .info-label { font-size: 12px; }
     }
   </style>
 </head>
@@ -253,11 +284,16 @@
 
     <!-- === 채인지로그 영역 === -->
     <div class="changelog-panel">
-      <h2 class="changelog-title">📋 CHANGELOG</h2>
-      <div id="changelogContent">
-        <div class="changelog-loading">업데이트 내역 불러오는 중...</div>
+      <div class="changelog-header" onclick="toggleChangelog()">
+        <h2 class="changelog-title">📋 CHANGELOG</h2>
+        <span class="changelog-toggle" id="changelogToggle">▼</span>
       </div>
-      <div class="pagination" id="pagination"></div>
+      <div class="changelog-body" id="changelogBody">
+        <div id="changelogContent">
+          <div class="changelog-loading">업데이트 내역 불러오는 중...</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
     </div>
   </div>
 
@@ -276,12 +312,27 @@
     const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
     const changelogCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?gid=318273456&output=csv";
 
-    const ITEMS_PER_PAGE = 8; // 한 페이지에 보여줄 항목 개수
+    const ITEMS_PER_PAGE = 8;
     let rawMapData = [];
     let changelogRows = [];
     let currentPage = 1;
     let totalPages = 1;
     let currentSortMode = 'rank';
+    let isChangelogCollapsed = false;
+
+    // === 채인지로그 접기/펼치기 ===
+    function toggleChangelog() {
+      isChangelogCollapsed = !isChangelogCollapsed;
+      const body = document.getElementById('changelogBody');
+      const toggle = document.getElementById('changelogToggle');
+      if (isChangelogCollapsed) {
+        body.classList.add('collapsed');
+        toggle.classList.add('collapsed');
+      } else {
+        body.classList.remove('collapsed');
+        toggle.classList.remove('collapsed');
+      }
+    }
 
     // === 유틸 ===
     function parseCSV(csvText) {
@@ -367,10 +418,8 @@
       }
 
       let pagerHtml = "";
-      // 이전
       pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`;
 
-      // 페이지 번호
       const maxVisible = 3;
       let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
       let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -396,7 +445,6 @@
         pagerHtml += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
       }
 
-      // 다음
       pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
 
       pager.innerHTML = pagerHtml;
@@ -404,6 +452,7 @@
 
     function goToPage(page) {
       renderChangelogPage(page);
+      window.scrollTo({ top: document.querySelector('.changelog-panel').offsetTop - 10, behavior: 'smooth' });
     }
 
     function showPageInput() {
@@ -423,16 +472,14 @@
       if (!isNaN(val) && val >= 1 && val <= totalPages) {
         goToPage(val);
       } else {
-        showPageInput(); // 잘못된 값이면 다시 입력창
+        showPageInput();
       }
     }
 
-    // === 데이터 불러오기 ===
     async function loadChangelog() {
       try {
         const res = await fetch(`${changelogCsvUrl}&_t=${Date.now()}`);
         if (!res.ok) throw new Error("changelog fetch failed");
-        // 날짜 내림차순으로 정렬
         changelogRows = parseCSV(await res.text()).filter(r => r.Date && r.Level);
         changelogRows.sort((a, b) => {
           const da = (a.Date || "").trim();
@@ -545,7 +592,6 @@
       list.appendChild(frag);
     }
 
-    // 이벤트
     document.getElementById('mapList').addEventListener('click', e => {
       const thumb = e.target.closest('.list-thumbnail');
       if (thumb) {
@@ -563,7 +609,6 @@
       }
     });
 
-    // 헤더 제목 클릭/롱프레스
     const ht = document.getElementById('headerTitle');
     let t = null;
     ht.addEventListener('mousedown', () => { t = setTimeout(openModal, 400); });
@@ -591,7 +636,6 @@
       setTimeout(()=>t.style.display='none', 2000);
     }
 
-    // 메인 데이터 로드
     async function loadMainData() {
       const cacheKey = 'gd_list_data';
       const timeKey = 'gd_list_time';
