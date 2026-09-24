@@ -214,7 +214,6 @@
     }
 
     @media (max-width: 900px) {
-      /* === 모바일 탭 바 스타일 === */
       .mobile-tab-bar {
         display: flex; gap: 8px;
         max-width: 1400px; margin: 15px auto 0 auto; padding: 0 10px;
@@ -232,7 +231,6 @@
         color: #fff;
       }
 
-      /* === 탭 선택 숨김 클래스 === */
       .content-area.mobile-hidden,
       .changelog-panel.mobile-hidden {
         display: none !important;
@@ -242,7 +240,7 @@
       .changelog-panel { width: 100%; position: static; box-sizing: border-box; }
       header { padding: 14px 18px; }
       header h1 { font-size: 16px; }
-      .control-panel { padding: 8px 10px; gap: 8px; }
+      .control-panel { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
       .search-box input { padding: 8px 10px; font-size: 12px; }
       .btn { padding: 8px 10px; font-size: 11px; }
       .list-item { padding: 18px 12px; }
@@ -275,9 +273,11 @@
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="검색..." oninput="filterAndRenderData()">
         </div>
+        <!-- === 퍼블리셔 랭킹 버튼 추가 === -->
         <div class="filter-buttons">
           <button class="btn active" id="btnRank" onclick="changeSortMode('rank')">순위순</button>
           <button class="btn" id="btnObjects" onclick="changeSortMode('objects')">오브젝트순</button>
+          <button class="btn" id="btnPublisher" onclick="changeSortMode('publisher')">퍼블리셔 랭킹</button>
         </div>
       </div>
       <div class="list-section" id="mapList">
@@ -306,18 +306,16 @@
   <div class="toast" id="toast">주소가 복사되었습니다!</div>
 
   <script>
-    // === 시트 URL — 본인 환경에 맞게 수정 ===
     const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?output=csv";
     const changelogCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSinNPA7weUWqy5wu9xgucDSkvtUuy5He_fRjKjBj38hB4NiPg8WdMwtqusFmYMLkECADgZvBRyeohO/pub?gid=318273456&output=csv";
 
-    const ITEMS_PER_PAGE = 8; // 한 페이지에 보여줄 항목 개수
+    const ITEMS_PER_PAGE = 8;
     let rawMapData = [];
     let changelogRows = [];
     let currentPage = 1;
     let totalPages = 1;
     let currentSortMode = 'rank';
 
-    // === 모바일 탭 전환 함수 ===
     function switchMobileTab(tab) {
       const contentArea = document.querySelector('.content-area');
       const changelogPanel = document.querySelector('.changelog-panel');
@@ -337,7 +335,6 @@
       }
     }
 
-    // === 유틸 ===
     function parseCSV(csvText) {
       const lines = csvText.split(/\r?\n/);
       if (lines.length === 0) return [];
@@ -358,7 +355,6 @@
       return result;
     }
 
-    // === 체인지로그 렌더링 ===
     function renderChangelogPage(page) {
       const container = document.getElementById('changelogContent');
       if (!changelogRows.length) {
@@ -412,7 +408,6 @@
       renderPagination();
     }
 
-    // === 페이지네이션 ===
     function renderPagination() {
       const pager = document.getElementById('pagination');
       if (totalPages <= 1) {
@@ -421,10 +416,8 @@
       }
 
       let pagerHtml = "";
-      // 이전
       pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`;
 
-      // 페이지 번호
       const maxVisible = 3;
       let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
       let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -434,9 +427,7 @@
 
       if (startPage > 1) {
         pagerHtml += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
-        if (startPage > 2) {
-          pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
-        }
+        if (startPage > 2) pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
       }
 
       for (let i = startPage; i <= endPage; i++) {
@@ -444,21 +435,15 @@
       }
 
       if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-          pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
-        }
+        if (endPage < totalPages - 1) pagerHtml += `<button class="page-btn" onclick="showPageInput()">...</button>`;
         pagerHtml += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
       }
 
-      // 다음
       pagerHtml += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>`;
-
       pager.innerHTML = pagerHtml;
     }
 
-    function goToPage(page) {
-      renderChangelogPage(page);
-    }
+    function goToPage(page) { renderChangelogPage(page); }
 
     function showPageInput() {
       const pager = document.getElementById('pagination');
@@ -481,22 +466,16 @@
       }
     }
 
-    // === 데이터 불러오기 ===
     async function loadChangelog() {
       try {
         const res = await fetch(`${changelogCsvUrl}&_t=${Date.now()}`);
         if (!res.ok) throw new Error("changelog fetch failed");
         changelogRows = parseCSV(await res.text()).filter(r => r.Date && r.Level);
-        changelogRows.sort((a, b) => {
-          const da = (a.Date || "").trim();
-          const db = (b.Date || "").trim();
-          return db.localeCompare(da);
-        });
+        changelogRows.sort((a, b) => (b.Date || "").trim().localeCompare((a.Date || "").trim()));
         renderChangelogPage(1);
       } catch (err) {
         console.error(err);
-        document.getElementById('changelogContent').innerHTML =
-          '<div class="changelog-loading" style="color:#ef4444;">내역을 불러오지 못했습니다.</div>';
+        document.getElementById('changelogContent').innerHTML = '<div class="changelog-loading" style="color:#ef4444;">내역을 불러오지 못했습니다.</div>';
       }
     }
 
@@ -512,6 +491,7 @@
         return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="250" height="140" style="background:%23181d26;"></svg>';
       }
     }
+
     function getRatingColor(r) {
       if (!r) return '#fff';
       r = r.toLowerCase().trim();
@@ -523,6 +503,7 @@
       if (r.includes('unrated')) return '#475569';
       return '#e2e8f0';
     }
+
     function getObjectsColor(s) {
       if (!s) return '#e2e8f0';
       const n = parseInt(s.replace(/\D/g, ''), 10);
@@ -540,34 +521,112 @@
       if (n >= 10000) return '#10b981';
       return '#64748b';
     }
+
     function changeSortMode(mode) {
       currentSortMode = mode;
       document.getElementById('btnRank').classList.toggle('active', mode === 'rank');
       document.getElementById('btnObjects').classList.toggle('active', mode === 'objects');
+      document.getElementById('btnPublisher').classList.toggle('active', mode === 'publisher');
       filterAndRenderData();
     }
+
+    // === 퍼블리셔 점수 집계 함수 ===
+    function calculatePublisherRankings() {
+      if (!rawMapData || rawMapData.length === 0) return [];
+
+      const validMaps = rawMapData.filter(m => m.publisher && m.rank);
+      const totalMaps = validMaps.length;
+      const publisherMap = {};
+
+      validMaps.forEach(map => {
+        const publisher = map.publisher.trim();
+        const rank = parseInt(map.rank.replace(/\D/g, ''), 10);
+        if (!publisher || isNaN(rank)) return;
+
+        // 1등 = N점, N등 = 1점 계산
+        const points = totalMaps - rank + 1;
+
+        if (!publisherMap[publisher]) {
+          publisherMap[publisher] = {
+            publisher: publisher,
+            totalPoints: 0,
+            mapCount: 0
+          };
+        }
+
+        publisherMap[publisher].totalPoints += points;
+        publisherMap[publisher].mapCount += 1;
+      });
+
+      return Object.values(publisherMap).sort((a, b) => b.totalPoints - a.totalPoints);
+    }
+
     function filterAndRenderData() {
       const list = document.getElementById('mapList');
       const kw = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      // === 1. 퍼블리셔 랭킹 모드 ===
+      if (currentSortMode === 'publisher') {
+        const publisherRankings = calculatePublisherRankings().filter(p =>
+          p.publisher.toLowerCase().includes(kw)
+        );
+
+        if (!publisherRankings.length) {
+          list.innerHTML = '<div class="loading-text">검색 결과가 없습니다.</div>';
+          return;
+        }
+
+        const frag = document.createDocumentFragment();
+        publisherRankings.forEach((pub, idx) => {
+          const item = document.createElement('div');
+          item.className = 'list-item';
+          item.innerHTML = `
+            <div class="item-main-row" style="justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="rank">#${idx + 1}</div>
+                <div class="map-name" style="font-size: 22px;">${pub.publisher}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 20px; font-weight: bold; color: var(--accent-orange);">
+                  ${pub.totalPoints.toLocaleString()} PTS
+                </div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+                  보유 맵 ${pub.mapCount}개
+                </div>
+              </div>
+            </div>
+          `;
+          frag.appendChild(item);
+        });
+
+        list.innerHTML = '';
+        list.appendChild(frag);
+        return;
+      }
+
+      // === 2. 기존 (순위순 / 오브젝트순) 모드 ===
       let filtered = rawMapData.filter(m =>
         (m.name || '').toLowerCase().includes(kw) ||
         (m.publisher || '').toLowerCase().includes(kw)
       );
+
       if (currentSortMode === 'rank') {
         filtered.sort((a, b) =>
           parseInt((a.rank || '9999').replace(/\D/g, ''), 10) -
           parseInt((b.rank || '9999').replace(/\D/g, ''), 10)
         );
-      } else {
+      } else if (currentSortMode === 'objects') {
         filtered.sort((a, b) =>
           parseInt((b.objects || '0').replace(/\D/g, ''), 10) -
           parseInt((a.objects || '0').replace(/\D/g, ''), 10)
         );
       }
+
       if (!filtered.length) {
         list.innerHTML = '<div class="loading-text">검색 결과가 없습니다.</div>';
         return;
       }
+
       const frag = document.createDocumentFragment();
       filtered.forEach(map => {
         const item = document.createElement('div');
@@ -598,7 +657,6 @@
       list.appendChild(frag);
     }
 
-    // 이벤트
     document.getElementById('mapList').addEventListener('click', e => {
       const thumb = e.target.closest('.list-thumbnail');
       if (thumb) {
@@ -616,7 +674,6 @@
       }
     });
 
-    // 헤더 제목 클릭/롱프레스
     const ht = document.getElementById('headerTitle');
     let t = null;
     ht.addEventListener('mousedown', () => { t = setTimeout(openModal, 400); });
@@ -644,7 +701,6 @@
       setTimeout(()=>t.style.display='none', 2000);
     }
 
-    // 메인 데이터 로드
     async function loadMainData() {
       const cacheKey = 'gd_list_data';
       const timeKey = 'gd_list_time';
@@ -675,7 +731,6 @@
       loadChangelog();
     }
 
-    // 페이지 진입 시 모바일 초기 상태 설정
     if (window.innerWidth <= 900) {
       document.querySelector('.changelog-panel').classList.add('mobile-hidden');
     }
