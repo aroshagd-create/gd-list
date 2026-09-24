@@ -56,7 +56,6 @@
     header h1:hover { opacity: 0.8; }
     header h1:active { transform: scale(0.98); }
 
-    /* === 모바일 전용 탭 바 === */
     .mobile-tab-bar { display: none; }
 
     .main-layout {
@@ -65,7 +64,6 @@
     }
     .content-area { flex: 1; min-width: 0; }
 
-    /* === 체인지로그 패널 === */
     .changelog-panel {
       width: var(--changelog-width); flex-shrink: 0;
       background-color: var(--panel-bg);
@@ -93,13 +91,10 @@
       font-weight: bold; color: #fff; background: #2a2f3d;
       padding: 2px 8px; border-radius: 4px; margin: 0 4px;
     }
-    .changelog-rank {
-      font-weight: bold; color: #7dd3fc;
-    }
+    .changelog-rank { font-weight: bold; color: #7dd3fc; }
     .changelog-above { color: #ccc; margin: 0 4px; }
     .changelog-map { font-weight: 500; color: #fff; }
 
-    /* === 페이지네이션 === */
     .pagination {
       display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
       margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);
@@ -116,9 +111,7 @@
       color: #fff; font-weight: bold;
     }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .page-input-wrap {
-      display: flex; align-items: center; gap: 4px;
-    }
+    .page-input-wrap { display: flex; align-items: center; gap: 4px; }
     .page-input {
       width: 50px; height: 36px; background: #11141a;
       border: 1px solid var(--border-color); border-radius: 6px;
@@ -135,8 +128,7 @@
       width: 100%; background-color: #11141a;
       border: 1px solid var(--border-color); border-radius: 8px;
       padding: 10px 14px; color: var(--text-color); font-size: 14px;
-      box-sizing: border-box; outline: none;
-      transition: border-color 0.2s;
+      box-sizing: border-box; outline: none; transition: border-color 0.2s;
       -webkit-user-select: auto; user-select: auto;
     }
     .search-box input:focus { border-color: var(--accent-color); }
@@ -154,7 +146,7 @@
       background-color: var(--panel-bg); border-radius: 12px;
       border: 1px solid var(--border-color); overflow: hidden; width: 100%;
     }
-    .list-item { border-bottom: 1px solid var(--border-color); padding: 28px 30px; }
+    .list-item { border-bottom: 1px solid var(--border-color); padding: 24px 30px; }
     .list-item:last-child { border-bottom: none; }
     .item-main-row { display: flex; align-items: center; gap: 30px; }
     .rank { font-size: 26px; font-weight: bold; width: 60px; color: var(--accent-color); text-align: center; }
@@ -167,15 +159,15 @@
     .list-thumbnail:hover { transform: scale(1.03); border-color: #ef4444; }
     .list-thumbnail img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
     .map-info-click-area {
-      flex: 1; cursor: pointer; padding: 15px 20px; border-radius: 8px;
+      flex: 1; cursor: pointer; padding: 12px 18px; border-radius: 8px;
       transition: background 0.2s; display: flex; align-items: center;
       white-space: normal; word-break: break-word;
     }
     .map-info-click-area:hover, .list-item.active .map-info-click-area { background-color: #222936; }
-    .map-name { font-weight: bold; font-size: 28px; line-height: 1.3; pointer-events: none; }
+    .map-name { font-weight: bold; font-size: 26px; line-height: 1.3; pointer-events: none; }
     .item-detail-box {
       display: none; background-color: #131820; border-radius: 8px;
-      margin-top: 20px; padding: 22px; border: 1px solid var(--border-color);
+      margin-top: 18px; padding: 20px; border: 1px solid var(--border-color);
     }
     .list-item.active .item-detail-box { display: block; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
@@ -192,8 +184,7 @@
     .action-modal {
       background-color: var(--panel-bg); width: 100%; max-width: 500px;
       border-radius: 16px 16px 0 0; padding: 20px;
-      border-top: 1px solid var(--border-color);
-      animation: slideUp 0.25s ease-out;
+      border-top: 1px solid var(--border-color); animation: slideUp 0.25s ease-out;
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 15px; text-align: center; }
@@ -219,23 +210,12 @@
         max-width: 1400px; margin: 15px auto 0 auto; padding: 0 10px;
       }
       .mobile-tab-btn {
-        flex: 1; padding: 12px;
-        background-color: var(--panel-bg);
-        border: 1px solid var(--border-color);
-        color: var(--text-color); font-weight: bold; font-size: 14px;
-        border-radius: 8px; cursor: pointer; transition: all 0.2s;
+        flex: 1; padding: 12px; background-color: var(--panel-bg);
+        border: 1px solid var(--border-color); color: var(--text-color);
+        font-weight: bold; font-size: 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
       }
-      .mobile-tab-btn.active {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-        color: #fff;
-      }
-
-      .content-area.mobile-hidden,
-      .changelog-panel.mobile-hidden {
-        display: none !important;
-      }
-
+      .mobile-tab-btn.active { background-color: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+      .content-area.mobile-hidden, .changelog-panel.mobile-hidden { display: none !important; }
       .main-layout { flex-direction: column; padding: 0 10px; margin: 15px auto; }
       .changelog-panel { width: 100%; position: static; box-sizing: border-box; }
       header { padding: 14px 18px; }
@@ -243,12 +223,12 @@
       .control-panel { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
       .search-box input { padding: 8px 10px; font-size: 12px; }
       .btn { padding: 8px 10px; font-size: 11px; }
-      .list-item { padding: 18px 12px; }
+      .list-item { padding: 16px 12px; }
       .item-main-row { gap: 14px; }
       .rank { font-size: 18px; width: 32px; }
       .list-thumbnail { width: 140px; height: 78px; }
       .map-name { font-size: 18px; }
-      .map-info-click-area { padding: 10px 6px; }
+      .map-info-click-area { padding: 8px 6px; }
       .item-detail-box { padding: 12px; margin-top: 10px; }
       .info-value { font-size: 13px; }
       .info-label { font-size: 10px; }
@@ -261,7 +241,6 @@
     <div style="font-size: 13px; color: var(--text-muted);">LIVE TRACKING</div>
   </header>
 
-  <!-- 모바일 전용 탭 전환 버튼 -->
   <div class="mobile-tab-bar">
     <button class="mobile-tab-btn active" id="tabBtnList" onclick="switchMobileTab('list')">🏆 레벨 리스트</button>
     <button class="mobile-tab-btn" id="tabBtnChangelog" onclick="switchMobileTab('changelog')">📋 체인지로그</button>
@@ -273,7 +252,6 @@
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="검색..." oninput="filterAndRenderData()">
         </div>
-        <!-- === 퍼블리셔 랭킹 버튼 추가 === -->
         <div class="filter-buttons">
           <button class="btn active" id="btnRank" onclick="changeSortMode('rank')">순위순</button>
           <button class="btn" id="btnObjects" onclick="changeSortMode('objects')">오브젝트순</button>
@@ -285,7 +263,6 @@
       </div>
     </div>
 
-    <!-- === 체인지로그 영역 === -->
     <div class="changelog-panel">
       <h2 class="changelog-title">📋 CHANGELOG</h2>
       <div id="changelogContent">
@@ -530,7 +507,7 @@
       filterAndRenderData();
     }
 
-    // === 퍼블리셔 점수 집계 함수 ===
+    // === 퍼블리셔 점수 집계 & 제작 맵 목록 구성 함수 ===
     function calculatePublisherRankings() {
       if (!rawMapData || rawMapData.length === 0) return [];
 
@@ -543,22 +520,38 @@
         const rank = parseInt(map.rank.replace(/\D/g, ''), 10);
         if (!publisher || isNaN(rank)) return;
 
-        // 1등 = N점, N등 = 1점 계산
-        const points = totalMaps - rank + 1;
+        // 1등 = 100점, N등(꼴등) = 1점 동적 자동 계산 공식
+        let points = 100;
+        if (totalMaps > 1) {
+          points = 100 - ((rank - 1) * 99 / (totalMaps - 1));
+        }
+        const roundedPoints = Math.round(points * 10) / 10;
 
         if (!publisherMap[publisher]) {
           publisherMap[publisher] = {
             publisher: publisher,
             totalPoints: 0,
-            mapCount: 0
+            mapCount: 0,
+            maps: []
           };
         }
 
         publisherMap[publisher].totalPoints += points;
         publisherMap[publisher].mapCount += 1;
+        publisherMap[publisher].maps.push({
+          name: map.name || 'Unknown',
+          rank: rank,
+          points: roundedPoints
+        });
       });
 
-      return Object.values(publisherMap).sort((a, b) => b.totalPoints - a.totalPoints);
+      return Object.values(publisherMap)
+        .map(p => ({
+          ...p,
+          totalPoints: Math.round(p.totalPoints * 10) / 10,
+          maps: p.maps.sort((a, b) => a.rank - b.rank) // 맵을 1위부터 순서대로 정렬
+        }))
+        .sort((a, b) => b.totalPoints - a.totalPoints);
     }
 
     function filterAndRenderData() {
@@ -580,11 +573,28 @@
         publisherRankings.forEach((pub, idx) => {
           const item = document.createElement('div');
           item.className = 'list-item';
+
+          // 퍼블리셔 보유 맵 목록 HTML 생성
+          const mapsHtml = pub.maps.map(m => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border-color); font-size: 14px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-weight: bold; color: var(--accent-color); min-width: 35px;">#${m.rank}</span>
+                <span style="font-weight: bold; color: #fff; font-size: 16px;">${m.name}</span>
+              </div>
+              <div style="font-size: 14px; color: var(--accent-orange); font-weight: bold;">
+                +${m.points} PTS
+              </div>
+            </div>
+          `).join('');
+
           item.innerHTML = `
-            <div class="item-main-row" style="justify-content: space-between;">
+            <div class="item-main-row map-info-click-area" style="justify-content: space-between; width: 100%; box-sizing: border-box;">
               <div style="display: flex; align-items: center; gap: 20px;">
                 <div class="rank">#${idx + 1}</div>
-                <div class="map-name" style="font-size: 22px;">${pub.publisher}</div>
+                <div>
+                  <div class="map-name" style="font-size: 22px;">${pub.publisher}</div>
+                  <div style="font-size: 12px; color: var(--accent-color); margin-top: 4px; font-weight: normal;">▼ 클릭하여 제작 맵 보기</div>
+                </div>
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 20px; font-weight: bold; color: var(--accent-orange);">
@@ -593,6 +603,14 @@
                 <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
                   보유 맵 ${pub.mapCount}개
                 </div>
+              </div>
+            </div>
+            <div class="item-detail-box" style="padding: 12px; background: #0e1117;">
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: bold; letter-spacing: 0.5px;">
+                PUBLISHED MAPS (${pub.mapCount})
+              </div>
+              <div style="background: var(--panel-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+                ${mapsHtml}
               </div>
             </div>
           `;
