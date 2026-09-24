@@ -507,7 +507,6 @@
       filterAndRenderData();
     }
 
-    // === 퍼블리셔 점수 집계 & 제작 맵 목록 구성 함수 ===
     function calculatePublisherRankings() {
       if (!rawMapData || rawMapData.length === 0) return [];
 
@@ -520,7 +519,6 @@
         const rank = parseInt(map.rank.replace(/\D/g, ''), 10);
         if (!publisher || isNaN(rank)) return;
 
-        // 1등 = 100점, N등(꼴등) = 1점 동적 자동 계산 공식
         let points = 100;
         if (totalMaps > 1) {
           points = 100 - ((rank - 1) * 99 / (totalMaps - 1));
@@ -549,7 +547,7 @@
         .map(p => ({
           ...p,
           totalPoints: Math.round(p.totalPoints * 10) / 10,
-          maps: p.maps.sort((a, b) => a.rank - b.rank) // 맵을 1위부터 순서대로 정렬
+          maps: p.maps.sort((a, b) => a.rank - b.rank)
         }))
         .sort((a, b) => b.totalPoints - a.totalPoints);
     }
@@ -558,7 +556,6 @@
       const list = document.getElementById('mapList');
       const kw = document.getElementById('searchInput').value.toLowerCase().trim();
 
-      // === 1. 퍼블리셔 랭킹 모드 ===
       if (currentSortMode === 'publisher') {
         const publisherRankings = calculatePublisherRankings().filter(p =>
           p.publisher.toLowerCase().includes(kw)
@@ -574,7 +571,6 @@
           const item = document.createElement('div');
           item.className = 'list-item';
 
-          // 퍼블리셔 보유 맵 목록 HTML 생성
           const mapsHtml = pub.maps.map(m => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border-color); font-size: 14px;">
               <div style="display: flex; align-items: center; gap: 12px;">
@@ -591,10 +587,7 @@
             <div class="item-main-row map-info-click-area" style="justify-content: space-between; width: 100%; box-sizing: border-box;">
               <div style="display: flex; align-items: center; gap: 20px;">
                 <div class="rank">#${idx + 1}</div>
-                <div>
-                  <div class="map-name" style="font-size: 22px;">${pub.publisher}</div>
-                  <div style="font-size: 12px; color: var(--accent-color); margin-top: 4px; font-weight: normal;">▼ 클릭하여 제작 맵 보기</div>
-                </div>
+                <div class="map-name" style="font-size: 22px;">${pub.publisher}</div>
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 20px; font-weight: bold; color: var(--accent-orange);">
@@ -622,7 +615,6 @@
         return;
       }
 
-      // === 2. 기존 (순위순 / 오브젝트순) 모드 ===
       let filtered = rawMapData.filter(m =>
         (m.name || '').toLowerCase().includes(kw) ||
         (m.publisher || '').toLowerCase().includes(kw)
